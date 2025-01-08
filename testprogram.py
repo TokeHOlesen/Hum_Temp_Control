@@ -7,6 +7,7 @@ import board
 import adafruit_dht
 import RPi.GPIO as GPIO
 
+# ========== DATA CONTAINERS ==========
 
 class SensorData:
     """Each property corresponds to data from one sensor."""
@@ -21,10 +22,13 @@ sensor_data_all = SensorData()
 
 stop_flag = Event()
 
-# ========== SETUP HARDWARE ==========
+# ========== HARDWARE SETUP ==========
 
+# Initializes the DHT22 sensor
 dht22_sensor = adafruit_dht.DHT22(board.D18)
 
+# Instatiates an LED object for each relay, corresponding to the respective GPIO pin.
+# Using LED objects allows to quickly set them to high or low voltage.
 relay_ch1 = LED(5)
 relay_ch2 = LED(6)
 relay_ch3 = LED(13)
@@ -32,7 +36,7 @@ relay_ch4 = LED(26)
 relay_ch5 = LED(12)
 relay_ch6 = LED(16)
 
-# Setup 1-Wire for DS18B20 probes
+# Initializes the DS18B20 temperature probes
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 

@@ -3,7 +3,6 @@ from gpiozero import LED
 from threading import Thread, Event
 import time
 import os
-import sys
 import board
 import adafruit_dht
 import RPi.GPIO as GPIO
@@ -111,16 +110,8 @@ text_temp2 = Text(app, text="", grid=[1,4])
 Text(app, text="*C", grid=[2,4])
 
 # Buttons to control relays
-PushButton(app, relay_ch1.on, text="Start", width=10, height=2, grid=[4,1])
-PushButton(
-    app,
-    command=lambda: [
-        relay_ch1.off(), relay_ch2.off(), relay_ch3.off(),
-        relay_ch4.off(), relay_ch5.off(), relay_ch6.off()
-    ],
-    text="Stop", width=10, height=2, grid=[5,1]
-)
-
+PushButton(app, relay_ch1.on,  text="Ch.1 ON",  width=10, height=2, grid=[4,1])
+PushButton(app, relay_ch1.off, text="Ch.1 OFF", width=10, height=2, grid=[5,1])
 PushButton(app, relay_ch2.on,  text="Ch.2 ON",  width=10, height=2, grid=[4,2])
 PushButton(app, relay_ch2.off, text="Ch.2 OFF", width=10, height=2, grid=[5,2])
 PushButton(app, relay_ch3.on,  text="Ch.3 ON",  width=10, height=2, grid=[4,3])

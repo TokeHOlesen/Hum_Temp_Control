@@ -3,24 +3,28 @@ from gpiozero import LED
 from threading import Thread, Event
 import time
 import os
-import glob
 import sys
 import board
 import adafruit_dht
 import RPi.GPIO as GPIO
 
-# ========== GLOBALS ==========
-# Variables to hold sensor data
-current_temp_dht = None
-current_hum_dht = None
-current_temp1 = None
-current_temp2 = None
 
-stopFlag = Event()
+class SensorData:
+    """Each property corresponds to data from one sensor."""
+    def __init__(self):
+        self.current_temp_dht = None
+        self.current_hum_dht = None
+        self.current_temp_1 = None
+        self.current_temp_2 = None
+
+
+sensor_data_all = SensorData()
+
+stop_flag = Event()
 
 # ========== SETUP HARDWARE ==========
 
-sensor = adafruit_dht.DHT22(board.D18)
+dht22_sensor = adafruit_dht.DHT22(board.D18)
 
 relay_ch1 = LED(5)
 relay_ch2 = LED(6)
@@ -54,35 +58,32 @@ def read_temp(sensor_device_file: str):
 
 # ========== THREADING ==========
 
-def read_sensors_in_thread(stop_event):
+def read_sensors_in_thread(sensor_data, stop_event):
     """
     Runs in a background thread. Reads sensor data and stores it in
     global variables, but does not update the GUI directly.
     """
-    global current_temp_dht, current_hum_dht, current_temp1, current_temp2
-
     while not stop_event.is_set():
         try:
             # Read from DHT22
-            current_temp_dht = sensor.temperature
-            current_hum_dht = sensor.humidity
-
+            sensor_data.current_temp_dht = dht22_sensor.temperature
+            sensor_data.current_hum_dht = dht22_sensor.humidity
             # Read from DS18B20 probes
-            current_temp1 = read_temp(temp_sensor_1_file)
-            current_temp2 = read_temp(temp_sensor_2_file)
+            sensor_data.current_temp_1 = read_temp(temp_sensor_1_file)
+            sensor_data.current_temp_2 = read_temp(temp_sensor_2_file)
         except Exception as e:
-            # You might get occasional read errors from the DHT sensor
             print("Sensor read error:", e)
 
         # Adjust sleep interval as needed
         time.sleep(0.5)
 
 
-# Close button
+# Called when the window is closed; cleans up.
 def close_gui():
-    stopFlag.set()      # Signal the thread to stop
-    GPIO.cleanup()      # Clean up GPIO
-    sys.exit()          # Exit the entire program
+    stop_flag.set()
+    thread.join()
+    GPIO.cleanup()
+    app.destroy()
 
 # ========== GUI ==========
 
@@ -135,32 +136,32 @@ PushButton(app, close_gui, text="Close", grid=[1,5])
 
 # ========== PERIODIC GUI UPDATE ==========
 
-def update_gui():
+def update_gui(sensor_data):
     """
     This function runs in the main thread. It reads the global sensor
     variables and updates the GUI labels. It then schedules itself
     to run again after 500ms.
     """
-    if current_temp_dht is not None:
-        text_temp_dht.value = current_temp_dht
-    if current_hum_dht is not None:
-        text_hum_dht.value = current_hum_dht
-    if current_temp1 is not None:
-        text_temp1.value = current_temp1
-    if current_temp2 is not None:
-        text_temp2.value = current_temp2
+    if sensor_data.current_temp_dht is not None:
+        text_temp_dht.value = sensor_data.current_temp_dht
+    if sensor_data.current_hum_dht is not None:
+        text_hum_dht.value = sensor_data.current_hum_dht
+    if sensor_data.current_temp_1 is not None:
+        text_temp1.value = sensor_data.current_temp_1
+    if sensor_data.current_temp_2 is not None:
+        text_temp2.value = sensor_data.current_temp_2
 
     # Schedule the next update in 500ms
-    app.after(500, update_gui)
+    app.after(500, lambda: update_gui(sensor_data))
 
 # ========== START BACKGROUND THREAD & GUI LOOP ==========
 
 # Create and start the sensor-reading thread
-thread = Thread(target=read_sensors_in_thread, args=(stopFlag,))
+thread = Thread(target=read_sensors_in_thread, args=(sensor_data_all, stop_flag,))
 thread.start()
 
 # Kick off periodic GUI updates
-app.after(500, update_gui)
+app.after(500, lambda: update_gui(sensor_data_all))
 
 # Start the GUI event loop (blocks until closed)
 app.display()

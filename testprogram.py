@@ -33,43 +33,31 @@ relay_ch6 = LED(16)
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
-sn1 = '28-0000006a045f'
-sn2 = '28-00000085eccb'
-
 base_dir = '/sys/bus/w1/devices/'
-device_file1 = glob.glob(base_dir + sn1)[0] + '/w1_slave'
-device_file2 = glob.glob(base_dir + sn2)[0] + '/w1_slave'
+temp_sensor_1_file = base_dir + '28-0000006a045f/w1_slave'
+temp_sensor_2_file = base_dir + '28-00000085eccb/w1_slave'
 
-def read_temp_raw1():
-    with open(device_file1, 'r') as f:
-        return f.readlines()
 
-def read_temp1():
-    lines1 = read_temp_raw1()
-    equals_pos = lines1[1].find('t=')
-    if equals_pos != -1:
-        temp_string1 = lines1[1][equals_pos+2:]
-        return round(float(temp_string1) / 1000.0, 1)
+def read_temp(sensor_device_file: str):
+    """
+    Reads data from the given device file; accepts an argument that is the path to a DS18B20 probe device file.
+	Returns a float with 1 decimal place if data is found, else None.
+    """
+    with open(sensor_device_file, 'r') as file:
+        temp_data_lines = file.readlines()
+    temp_data_start_pos = temp_data_lines[1].find('t=')
+    if temp_data_start_pos != -1:
+        temp_string = temp_data_lines[1][temp_data_start_pos + 2:]
+        return round(float(temp_string) / 1000.0, 1)
     return None
 
-def read_temp_raw2():
-    with open(device_file2, 'r') as f:
-        return f.readlines()
-
-def read_temp2():
-    lines2 = read_temp_raw2()
-    equals_pos = lines2[1].find('t=')
-    if equals_pos != -1:
-        temp_string2 = lines2[1][equals_pos+2:]
-        return round(float(temp_string2) / 1000.0, 1)
-    return None
 
 # ========== THREADING ==========
 
 def read_sensors_in_thread(stop_event):
     """
     Runs in a background thread. Reads sensor data and stores it in
-    global variables, but does NOT update the GUI directly.
+    global variables, but does not update the GUI directly.
     """
     global current_temp_dht, current_hum_dht, current_temp1, current_temp2
 
@@ -80,8 +68,8 @@ def read_sensors_in_thread(stop_event):
             current_hum_dht = sensor.humidity
 
             # Read from DS18B20 probes
-            current_temp1 = read_temp1()
-            current_temp2 = read_temp2()
+            current_temp1 = read_temp(temp_sensor_1_file)
+            current_temp2 = read_temp(temp_sensor_2_file)
         except Exception as e:
             # You might get occasional read errors from the DHT sensor
             print("Sensor read error:", e)

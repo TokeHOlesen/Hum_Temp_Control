@@ -7,12 +7,41 @@ import board
 import adafruit_dht
 import RPi.GPIO as GPIO
 
-# Constants
+# ========== CONSTANTS ==========
 
 # Time between sensor readings, in seconds
-PROBING_INTERVAL = 2
+SENSOR_PROBING_INTERVAL = 2
 # How often to update the GUI, in milliseconds
-GUI_UPDATE_FREQUENCY = 500
+UPDATE_FREQUENCY = 500
+
+
+# ========== DATA CONTAINERS ==========
+
+class SensorData:
+    """Each property corresponds to data from one sensor."""
+    def __init__(self):
+        self.current_temp_dht = None
+        self.current_hum_dht = None
+        self.current_temp_1 = None
+        self.current_temp_2 = None
+
+
+sensor_data_all = SensorData()
+
+
+class UserInput:
+    def __init__(self):
+        self.target_temp = None
+        self.target_humidity = None
+        self.running_time = None
+
+
+user_input_all = UserInput()
+
+
+# Sensor readings will continue being taken for as long as this flag is not set
+stop_flag = Event()
+
 
 # ========== HARDWARE SETUP ==========
 
@@ -51,22 +80,13 @@ def read_temp(sensor_device_file: str):
     return None
 
 
-# ========== DATA CONTAINERS ==========
-
-class SensorData:
-    """Each property corresponds to data from one sensor."""
-    def __init__(self):
-        self.current_temp_dht = None
-        self.current_hum_dht = None
-        self.current_temp_1 = None
-        self.current_temp_2 = None
-        
-
-# Instantiates an object of the SensorData class
-sensor_data_all = SensorData()
-
-# Sensor readings will continue being taken for as long as this flag is not set
-stop_flag = Event()
+def reset_all_channels():
+    ventilator_ch1.off()
+    varmer_ch2.off()
+    affugter_ch3.off()
+    damp_ch4.off()
+    running_ch5.off()
+    error_ch6.off()
 
 
 # ========== CONTINUOUS SENSOR READING ==========
@@ -88,7 +108,7 @@ def read_sensors_in_thread(sensor_data, stop_event):
             print("Sensor read error:", e)
 
         # Time between each reading (in seconds)
-        time.sleep(PROBING_INTERVAL)
+        time.sleep(SENSOR_PROBING_INTERVAL)
 
 
 # Called when the window is closed; cleans up.
@@ -97,13 +117,82 @@ def close_gui():
     thread.join()
     GPIO.cleanup()
     window.destroy()
+
+
+# ========== READING AND CLEARING USER INPUT DATA ==========
+
+def read_user_input(user_input):
+    user_target_temp = target_temperature_textentry.get()
+    if user_target_temp.isnumeric:
+        user_input.target_temp = min(int(user_target_temp), 45)
     
+    user_target_humidity = target_humidity_textentry.get()
+    if user_target_humidity.isnumeric:
+        user_input.target_humidity = int(user_target_humidity)
     
+    user_target_running_time = running_time_textentry.get()
+    if user_target_running_time == "":
+        user_input.running_time = 0
+    elif user_target_running_time.isnumeric:
+        user_input.running_time = int(user_target_running_time)
+
+
+def clear_user_input(user_input):
+    user_input.target_temp = None
+    user_input.target_humidity = None
+    user_input.running_time = None
+
+
+def clear_text_entry_fields():
+    target_temperature_textentry.delete(0, tk.END)
+    target_humidity_textentry.delete(0, tk.END)
+    running_time_textentry.delete(0, tk.END)
+
+
+# ========== SETTING RELAY CHANNELS ==========
+
+def update_relay_channels(sensor_data, user_input):
+    global ventilator_ch1, varmer_ch2, affugter_ch3, damp_ch4, running_ch5, error_ch6
+
+    if running_ch5.is_lit:
+        ventilator_ch1.on()
+        
+        if ventilator_ch1.is_lit:
+            varmer_ch2.on() if sensor_data.current_temp_dht < user_input.target_temp else varmer_ch2.off()
+            # Checks if current temperature is within 10 degrees of target
+            if abs(sensor_data.current_temp_dht - user_input.target_temp) <= 10:
+                if sensor_data.current_hum_dht < user_input.target_humidity:
+                    damp_ch4.on()
+                    affugter_ch3.off()
+                else:
+                    damp_ch4.off()
+                    affugter_ch3.on()
+        else:
+            varmer_ch2.off()
+            affugter_ch3.off()
+            damp_ch4.off()
+            running_ch5.off()
+
+
 # ========== GUI ==========
 
-# Placeholder
-def on_button_press():
-    print("Button pressed")
+def on_start_button_press():
+    running_ch5.on()
+    read_user_input(user_input_all)
+    clear_text_entry_fields()
+    target_temperature_label.config(text=str(user_input_all.target_temp) + "°C")
+    target_humidity_label.config(text=str(user_input_all.target_humidity) + "%")    
+    target_temperature_textentry.focus_set()
+    
+
+def on_cancel_button_press():
+    reset_all_channels()
+    clear_user_input(user_input_all)
+    target_temperature_label.config(text="N/A")
+    target_humidity_label.config(text="N/A")    
+    target_temperature_textentry.focus_set()
+    target_temperature_textentry.focus_set()
+
 
 window = tk.Tk()
 window.title("Temperatur og luftfugtighed")
@@ -174,10 +263,14 @@ tk.Label(data_display_frame, text="Damp Generator:").grid(row=3, column=2, stick
 damp_label = tk.Label(data_display_frame, text="N/A", width=5)
 damp_label.grid(row=3, column=3, sticky="w", padx=(0, 5))
 
-# Time remaining
-tk.Label(data_display_frame, text="Resterende tid:").grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
-remaining_time_label = tk.Label(data_display_frame, text="Ubestemt", width=8)
+# Time elapsed and remaining
+tk.Label(data_display_frame, text="Tid gået:").grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
+remaining_time_label = tk.Label(data_display_frame, text="N/A", width=5)
 remaining_time_label.grid(row=4, column=1, sticky="w", pady=(10, 5))
+
+tk.Label(data_display_frame, text="Tid tilbage:").grid(row=4, column=2, sticky="w", pady=(10, 5))
+remaining_time_label = tk.Label(data_display_frame, text="N/A", width=5)
+remaining_time_label.grid(row=4, column=3, sticky="w", pady=(10, 5))
 
 
 # Button frame
@@ -189,14 +282,14 @@ button_frame.grid(row=2, column=0, padx=90, pady=10, sticky="nw")
 tk.Label(button_frame, text="").grid(row=0, column=0)
 
 # Start button
-start_button = tk.Button(button_frame, text="Start", width=8, command=on_button_press)
+start_button = tk.Button(button_frame, text="Start", width=8, command=on_start_button_press)
 start_button.grid(row=0, column=1)
 
 # Middle spacer
 tk.Label(button_frame, text="").grid(row=0, column=2, padx=20)
 
 # Cancel button
-cancel_button = tk.Button(button_frame, text="Afbryd", width=8, command=on_button_press)
+cancel_button = tk.Button(button_frame, text="Afbryd", width=8, command=on_cancel_button_press)
 cancel_button.grid(row=0, column=3)
 
 # Right spacer
@@ -220,24 +313,26 @@ error_label = tk.Label(status_frame, fg="red", text="This is a sample error mess
 error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(10, 0))
 
 
-# ========== PERIODIC GUI UPDATE ==========
+# ========== PERIODIC GUI AND RELAY UPDATE ==========
 
-def update_gui(sensor_data):
+def update_gui_and_relays(sensor_data):
     """Updates the GUI labels."""
     if sensor_data.current_temp_dht is not None:
         actual_temperature_label.config(text=str(sensor_data.current_temp_dht) + "°C")
     if sensor_data.current_hum_dht is not None:
         actual_humidity_label.config(text=str(sensor_data.current_hum_dht) + "%")
+        
+    update_relay_channels(sensor_data_all, user_input_all)
     
-    ventilator_label.config(text="ON") if ventilator_ch1.is_lit else ventilator_label.config(text="OFF")
-    varmer_label.config(text="ON") if varmer_ch2.is_lit else varmer_label.config(text="OFF")
-    affugter_label.config(text="ON") if affugter_ch3.is_lit else affugter_label.config(text="OFF")
-    damp_label.config(text="ON") if damp_ch4.is_lit else damp_label.config(text="OFF")
-    status_label.config(text="I drift") if running_ch5.is_lit else status_label.config(text="Stoppet")
+    ventilator_label.config(text="ON", fg="Green") if ventilator_ch1.is_lit else ventilator_label.config(text="OFF", fg="Red")
+    varmer_label.config(text="ON", fg="Green") if varmer_ch2.is_lit else varmer_label.config(text="OFF", fg="Red")
+    affugter_label.config(text="ON", fg="Green") if affugter_ch3.is_lit else affugter_label.config(text="OFF", fg="Red")
+    damp_label.config(text="ON", fg="Green") if damp_ch4.is_lit else damp_label.config(text="OFF", fg="Red")
+    status_label.config(text="Kører.") if running_ch5.is_lit else status_label.config(text="Stoppet.")
     error_label.config(text="Fejl", fg="Red") if error_ch6.is_lit else error_label.config(text="Ingen fejl.", fg="Green")
 
     # Schedule the next update
-    window.after(GUI_UPDATE_FREQUENCY, lambda: update_gui(sensor_data)) 
+    window.after(UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data)) 
     
     
 # ========== START BACKGROUND THREAD & GUI LOOP ==========
@@ -248,7 +343,7 @@ thread.start()
 
 # Updates the GUI for the first time - after initially called, the update_gui() function will call itself periodically
 # until the program is terminated
-window.after(500, lambda: update_gui(sensor_data_all))
+window.after(500, lambda: update_gui_and_relays(sensor_data_all))
 
 # Starts the GUI event loop
 target_temperature_textentry.focus_set()

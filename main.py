@@ -167,6 +167,9 @@ def update_relay_channels(sensor_data, user_input):
                 else:
                     damp_ch4.off()
                     affugter_ch3.on()
+            else:
+                affugter_ch3.off()
+                damp_ch4.off()
         else:
             varmer_ch2.off()
             affugter_ch3.off()
@@ -195,7 +198,7 @@ def on_cancel_button_press():
 
 
 window = tk.Tk()
-window.title("Temperatur og luftfugtighed")
+window.title("Temperatur- og luftfugtighedsstyring")
 window.geometry("428x380")
 
 # Data entry frame

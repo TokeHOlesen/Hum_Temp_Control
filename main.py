@@ -1,4 +1,4 @@
-from guizero import App, Text, PushButton
+import tkinter as tk
 from gpiozero import LED
 from threading import Thread, Event
 import time
@@ -7,6 +7,13 @@ import board
 import adafruit_dht
 import RPi.GPIO as GPIO
 
+# Constants
+
+# Time between sensor readings, in seconds
+PROBING_INTERVAL = 2
+# How often to update the GUI, in milliseconds
+GUI_UPDATE_FREQUENCY = 500
+
 # ========== HARDWARE SETUP ==========
 
 # Initializes the DHT22 sensor
@@ -14,12 +21,12 @@ dht22_sensor = adafruit_dht.DHT22(board.D18)
 
 # Instatiates an LED object for each relay, corresponding to the respective GPIO pin.
 # Using LED objects allows to quickly set them to high or low voltage.
-relay_ch1 = LED(5)
-relay_ch2 = LED(6)
-relay_ch3 = LED(13)
-relay_ch4 = LED(26)
-relay_ch5 = LED(12)
-relay_ch6 = LED(16)
+ventilator_ch1 = LED(5)
+varmer_ch2 = LED(6)
+affugter_ch3 = LED(13)
+damp_ch4 = LED(26)
+running_ch5 = LED(12)
+error_ch6 = LED(16)
 
 # Initializes the DS18B20 temperature probes
 os.system('modprobe w1-gpio')
@@ -81,7 +88,7 @@ def read_sensors_in_thread(sensor_data, stop_event):
             print("Sensor read error:", e)
 
         # Time between each reading (in seconds)
-        time.sleep(0.5)
+        time.sleep(PROBING_INTERVAL)
 
 
 # Called when the window is closed; cleans up.
@@ -89,34 +96,148 @@ def close_gui():
     stop_flag.set()
     thread.join()
     GPIO.cleanup()
-    app.destroy()
+    window.destroy()
     
     
 # ========== GUI ==========
 
-app = App(title="Temperature/Humidity test", layout="grid")
-app.when_closed = close_gui
+# Placeholder
+def on_button_press():
+    print("Button pressed")
+
+window = tk.Tk()
+window.title("Temperatur og luftfugtighed")
+window.geometry("428x380")
+
+# Data entry frame
+
+target_entry_frame = tk.Frame(window)
+target_entry_frame.grid(row=0, column=0, padx=90, pady=10, sticky="nw")
+
+# Target temperature entry
+tk.Label(target_entry_frame, text="Ønsket temperatur:").grid(row=0, column=0, sticky="w")
+target_temperature_textentry = tk.Entry(target_entry_frame, width=7)
+target_temperature_textentry.grid(row=0, column=1, padx=(12, 0))
+tk.Label(target_entry_frame, text="°C").grid(row=0, column=2, sticky="w", padx=(5, 0))
+
+# Target humidity entry
+tk.Label(target_entry_frame, text="Ønsket luftfugtighed:").grid(row=1, column=0, sticky="w")
+target_humidity_textentry = tk.Entry(target_entry_frame, width=7)
+target_humidity_textentry.grid(row=1, column=1, padx=(12, 0))
+tk.Label(target_entry_frame, text="%").grid(row=1, column=2, sticky="w", padx=(5, 0))
+
+# Running time entry
+tk.Label(target_entry_frame, text="Behandlingstid:").grid(row=2, column=0, sticky="w")
+running_time_textentry = tk.Entry(target_entry_frame, width=7)
+running_time_textentry.grid(row=2, column=1, padx=(12, 0))
+tk.Label(target_entry_frame, text="min.").grid(row=2, column=2, sticky="w", padx=(5, 0))
+
+
+# Data display frame
+
+data_display_frame = tk.Frame(window, borderwidth=1, relief="sunken")
+data_display_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nw")
+
+# Temperature
+tk.Label(data_display_frame, text="Ønsket temperatur:").grid(row=0, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
+target_temperature_label = tk.Label(data_display_frame, text="N/A", width=5)
+target_temperature_label.grid(row=0, column=1, sticky="w", padx=(0, 20), pady=(5, 0))
+
+tk.Label(data_display_frame, text="Faktisk temperatur:").grid(row=0, column=2, sticky="w", pady=(5, 0))
+actual_temperature_label = tk.Label(data_display_frame, text="N/A", width=5)
+actual_temperature_label.grid(row=0, column=3, sticky="w", padx=(0, 5),  pady=(5, 0))
+
+# Humidity
+tk.Label(data_display_frame, text="Ønsket luftfugtighed:").grid(row=1, column=0, sticky="w", padx=(5, 0))
+target_humidity_label = tk.Label(data_display_frame, text="N/A", width=5)
+target_humidity_label.grid(row=1, column=1, sticky="w", padx=(0, 20))
+
+tk.Label(data_display_frame, text="Faktisk luftfugtighed:").grid(row=1, column=2, sticky="w")
+actual_humidity_label = tk.Label(data_display_frame, text="N/A", width=5)
+actual_humidity_label.grid(row=1, column=3, sticky="w", padx=(0, 5))
+
+# Fan and heater
+tk.Label(data_display_frame, text="Ventilator:").grid(row=2, column=0, sticky="w", padx=(5, 0), pady=(10, 0))
+ventilator_label = tk.Label(data_display_frame, text="N/A", width=5)
+ventilator_label.grid(row=2, column=1, sticky="w", padx=(0, 20), pady=(10, 0))
+
+tk.Label(data_display_frame, text="Varmer:").grid(row=2, column=2, sticky="w", pady=(10, 0))
+varmer_label = tk.Label(data_display_frame, text="N/A", width=5)
+varmer_label.grid(row=2, column=3, sticky="w", padx=(0, 5), pady=(10, 0))
+
+# Dehumidifier and steam generator
+tk.Label(data_display_frame, text="Affugter:").grid(row=3, column=0, sticky="w", padx=(5, 0))
+affugter_label = tk.Label(data_display_frame, text="N/A", width=5)
+affugter_label.grid(row=3, column=1, sticky="w", padx=(0, 20))
+
+tk.Label(data_display_frame, text="Damp Generator:").grid(row=3, column=2, sticky="w")
+damp_label = tk.Label(data_display_frame, text="N/A", width=5)
+damp_label.grid(row=3, column=3, sticky="w", padx=(0, 5))
+
+# Time remaining
+tk.Label(data_display_frame, text="Resterende tid:").grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
+remaining_time_label = tk.Label(data_display_frame, text="Ubestemt", width=8)
+remaining_time_label.grid(row=4, column=1, sticky="w", pady=(10, 5))
+
+
+# Button frame
+
+button_frame = tk.Frame(window)
+button_frame.grid(row=2, column=0, padx=90, pady=10, sticky="nw")
+
+# Left spacer
+tk.Label(button_frame, text="").grid(row=0, column=0)
+
+# Start button
+start_button = tk.Button(button_frame, text="Start", width=8, command=on_button_press)
+start_button.grid(row=0, column=1)
+
+# Middle spacer
+tk.Label(button_frame, text="").grid(row=0, column=2, padx=20)
+
+# Cancel button
+cancel_button = tk.Button(button_frame, text="Afbryd", width=8, command=on_button_press)
+cancel_button.grid(row=0, column=3)
+
+# Right spacer
+tk.Label(button_frame, text="").grid(row=0, column=4)
+
+
+# Status frame
+
+status_frame = tk.Frame(window)
+status_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nw")
+status_frame.grid_columnconfigure(0, weight=0)
+status_frame.grid_columnconfigure(1, weight=1)
+
+# Current operating status
+tk.Label(status_frame, text="Status:").grid(row=0, column=0, sticky="w")
+status_label = tk.Label(status_frame, text="Stoppet")
+status_label.grid(row=0, column=1, sticky="w")
+
+# Error message, if any
+error_label = tk.Label(status_frame, fg="red", text="This is a sample error message")
+error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(10, 0))
 
 
 # ========== PERIODIC GUI UPDATE ==========
 
 def update_gui(sensor_data):
-    """
-    This function runs in the main thread. It reads the global sensor
-    variables and updates the GUI labels. It then schedules itself
-    to run again after 500ms.
-    """
-"""     if sensor_data.current_temp_dht is not None:
-        text_temp_dht.value = sensor_data.current_temp_dht
+    """Updates the GUI labels."""
+    if sensor_data.current_temp_dht is not None:
+        actual_temperature_label.config(text=str(sensor_data.current_temp_dht) + "°C")
     if sensor_data.current_hum_dht is not None:
-        text_hum_dht.value = sensor_data.current_hum_dht
-    if sensor_data.current_temp_1 is not None:
-        text_temp1.value = sensor_data.current_temp_1
-    if sensor_data.current_temp_2 is not None:
-        text_temp2.value = sensor_data.current_temp_2
+        actual_humidity_label.config(text=str(sensor_data.current_hum_dht) + "%")
+    
+    ventilator_label.config(text="ON") if ventilator_ch1.is_lit else ventilator_label.config(text="OFF")
+    varmer_label.config(text="ON") if varmer_ch2.is_lit else varmer_label.config(text="OFF")
+    affugter_label.config(text="ON") if affugter_ch3.is_lit else affugter_label.config(text="OFF")
+    damp_label.config(text="ON") if damp_ch4.is_lit else damp_label.config(text="OFF")
+    status_label.config(text="I drift") if running_ch5.is_lit else status_label.config(text="Stoppet")
+    error_label.config(text="Fejl", fg="Red") if error_ch6.is_lit else error_label.config(text="Ingen fejl.", fg="Green")
 
-    # Schedule the next update in 500ms
-    app.after(500, lambda: update_gui(sensor_data))  """
+    # Schedule the next update
+    window.after(GUI_UPDATE_FREQUENCY, lambda: update_gui(sensor_data)) 
     
     
 # ========== START BACKGROUND THREAD & GUI LOOP ==========
@@ -127,7 +248,9 @@ thread.start()
 
 # Updates the GUI for the first time - after initially called, the update_gui() function will call itself periodically
 # until the program is terminated
-app.after(500, lambda: update_gui(sensor_data_all))
+window.after(500, lambda: update_gui(sensor_data_all))
 
 # Starts the GUI event loop
-app.display()
+target_temperature_textentry.focus_set()
+window.protocol("WM_DELETE_WINDOW", close_gui)
+window.mainloop()

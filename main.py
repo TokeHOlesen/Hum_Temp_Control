@@ -13,8 +13,10 @@ import RPi.GPIO as GPIO
 
 # Time between sensor readings, in seconds
 SENSOR_PROBING_INTERVAL = 2
-# How often to update the GUI, in milliseconds
+# How often to update the GUI and relay channels, in milliseconds
 UPDATE_FREQUENCY = 500
+# How often to log data, in seconds
+LOGGING_FREQUENCY = 120
 
 
 # ========== DATA CONTAINERS ==========
@@ -47,6 +49,7 @@ entered_user_input = UserInput()
 
 class TimeController:
     def __init__(self):
+        self.log_written = False
         self.reset()
     
     def start_timer(self):
@@ -63,13 +66,20 @@ class TimeController:
             if entered_user_input.running_time > 0 and self.get_remaining() <= 0:
                 return True
             return False
+        return False
+    
+    def log_condition(self):
+        if self.get_elapsed() % LOGGING_FREQUENCY == 0 and not self.log_written:
+            self.log_written = True
+            return True
+        self.log_written = False
+        return False
     
     def reset(self):
         self.start = None
         self.elapsed = None
         self.remaining = None
         
-
 
 time_controller_all = TimeController()
 
@@ -435,8 +445,21 @@ def update_gui_and_relays(sensor_data, time_controller):
         remaining_time_label.config(text=str(time_controller.get_remaining() // 60) + " min.") if time_controller.get_remaining() > 0 else remaining_time_label.config(text="N/A")
         print(time_controller.get_remaining())
     
-    if time_controller.stop_condition():
-        on_cancel_button_press()
+    if running_ch5.is_lit:
+        if time_controller.log_condition():
+            log_data(entered_user_input.target_temp,
+                    sensor_data.current_temp_dht,
+                    entered_user_input.target_humidity,
+                    sensor_data.current_hum_dht,
+                    int(ventilator_ch1.is_lit),
+                    int(varmer_ch2.is_lit),
+                    int(affugter_ch3.is_lit),
+                    int(damp_ch4.is_lit),
+                    int(error_ch6.is_lit)
+                    )
+        
+        if time_controller.stop_condition():
+            on_cancel_button_press()
 
     # Schedule the next update
     window.after(UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, time_controller)) 

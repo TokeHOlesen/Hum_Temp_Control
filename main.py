@@ -31,12 +31,45 @@ sensor_data_all = SensorData()
 
 class UserInput:
     def __init__(self):
+        self.reset()
+    
+    def reset(self):
+        self.is_correct = False
         self.target_temp = None
         self.target_humidity = None
         self.running_time = None
 
 
-user_input_all = UserInput()
+entered_user_input = UserInput()
+
+
+class TimeController:
+    def __init__(self):
+        self.reset()
+    
+    def start_timer(self):
+        self.start = time.perf_counter()
+        
+    def get_remaining(self):
+        return entered_user_input.running_time * 60 - self.get_elapsed()
+    
+    def get_elapsed(self):
+        return int(time.perf_counter() - self.start)
+    
+    def stop_condition(self):
+        if entered_user_input.running_time is not None:
+            if entered_user_input.running_time > 0 and self.get_remaining() <= 0:
+                return True
+            return False
+    
+    def reset(self):
+        self.start = None
+        self.elapsed = None
+        self.remaining = None
+        
+
+
+time_controller_all = TimeController()
 
 
 # Sensor readings will continue being taken for as long as this flag is not set
@@ -93,8 +126,8 @@ def reset_all_channels():
 
 def read_sensors_in_thread(sensor_data, stop_event):
     """
-    Runs in a background thread. Reads sensor data and stores it in
-    global variables, but does not update the GUI directly.
+    Runs in a background thread. Reads sensor data and stores it in the sensor_data object.
+    Runs until stop_event is set.
     """
     while not stop_event.is_set():
         try:
@@ -121,26 +154,32 @@ def close_gui():
 
 # ========== READING AND CLEARING USER INPUT DATA ==========
 
+
 def read_user_input(user_input):
+    user_input.is_correct = True
     user_target_temp = target_temperature_textentry.get()
-    if user_target_temp.isnumeric:
+    try:
         user_input.target_temp = min(int(user_target_temp), 45)
+    except:
+        print("Ugyldig temperatur input")
+        user_input.is_correct = False
     
     user_target_humidity = target_humidity_textentry.get()
-    if user_target_humidity.isnumeric:
-        user_input.target_humidity = int(user_target_humidity)
+    try:
+        user_input.target_humidity = max(0, min(int(user_target_humidity), 100))
+    except:
+        print("Ugyldig fugtighed input")
+        user_input.is_correct = False
     
     user_target_running_time = running_time_textentry.get()
     if user_target_running_time == "":
         user_input.running_time = 0
-    elif user_target_running_time.isnumeric:
-        user_input.running_time = int(user_target_running_time)
-
-
-def clear_user_input(user_input):
-    user_input.target_temp = None
-    user_input.target_humidity = None
-    user_input.running_time = None
+    else:
+        try:
+            user_input.running_time = max(1, int(user_target_running_time))
+        except:
+            print("Ugyldig tid input")
+            user_input.is_correct = False
 
 
 def clear_text_entry_fields():
@@ -180,20 +219,24 @@ def update_relay_channels(sensor_data, user_input):
 # ========== GUI ==========
 
 def on_start_button_press():
-    running_ch5.on()
-    read_user_input(user_input_all)
-    clear_text_entry_fields()
-    target_temperature_label.config(text=str(user_input_all.target_temp) + "°C")
-    target_humidity_label.config(text=str(user_input_all.target_humidity) + "%")    
-    target_temperature_textentry.focus_set()
+    read_user_input(entered_user_input)
+    if entered_user_input.is_correct:
+        running_ch5.on()
+        time_controller_all.start_timer()
+        clear_text_entry_fields()
+        target_temperature_label.config(text=str(entered_user_input.target_temp) + "°C")
+        target_humidity_label.config(text=str(entered_user_input.target_humidity) + "%")
+        target_temperature_textentry.focus_set()
     
 
 def on_cancel_button_press():
     reset_all_channels()
-    clear_user_input(user_input_all)
+    time_controller_all.reset()
+    entered_user_input.reset()
     target_temperature_label.config(text="N/A")
-    target_humidity_label.config(text="N/A")    
-    target_temperature_textentry.focus_set()
+    target_humidity_label.config(text="N/A")
+    elapsed_time_label.config(text="N/A")
+    remaining_time_label.config(text="N/A")
     target_temperature_textentry.focus_set()
 
 
@@ -268,8 +311,8 @@ damp_label.grid(row=3, column=3, sticky="w", padx=(0, 5))
 
 # Time elapsed and remaining
 tk.Label(data_display_frame, text="Tid gået:").grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
-remaining_time_label = tk.Label(data_display_frame, text="N/A", width=5)
-remaining_time_label.grid(row=4, column=1, sticky="w", pady=(10, 5))
+elapsed_time_label = tk.Label(data_display_frame, text="N/A", width=5)
+elapsed_time_label.grid(row=4, column=1, sticky="w", pady=(10, 5))
 
 tk.Label(data_display_frame, text="Tid tilbage:").grid(row=4, column=2, sticky="w", pady=(10, 5))
 remaining_time_label = tk.Label(data_display_frame, text="N/A", width=5)
@@ -318,14 +361,14 @@ error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(
 
 # ========== PERIODIC GUI AND RELAY UPDATE ==========
 
-def update_gui_and_relays(sensor_data):
+def update_gui_and_relays(sensor_data, time_controller):
     """Updates the GUI labels."""
     if sensor_data.current_temp_dht is not None:
         actual_temperature_label.config(text=str(sensor_data.current_temp_dht) + "°C")
     if sensor_data.current_hum_dht is not None:
         actual_humidity_label.config(text=str(sensor_data.current_hum_dht) + "%")
         
-    update_relay_channels(sensor_data_all, user_input_all)
+    update_relay_channels(sensor_data_all, entered_user_input)
     
     ventilator_label.config(text="ON", fg="Green") if ventilator_ch1.is_lit else ventilator_label.config(text="OFF", fg="Red")
     varmer_label.config(text="ON", fg="Green") if varmer_ch2.is_lit else varmer_label.config(text="OFF", fg="Red")
@@ -333,9 +376,16 @@ def update_gui_and_relays(sensor_data):
     damp_label.config(text="ON", fg="Green") if damp_ch4.is_lit else damp_label.config(text="OFF", fg="Red")
     status_label.config(text="Kører.") if running_ch5.is_lit else status_label.config(text="Stoppet.")
     error_label.config(text="Fejl", fg="Red") if error_ch6.is_lit else error_label.config(text="Ingen fejl.", fg="Green")
+    if time_controller.start is not None:
+        elapsed_time_label.config(text=str(time_controller.get_elapsed() // 60) + " min.")
+        remaining_time_label.config(text=str(time_controller.get_remaining() // 60) + " min.") if time_controller.get_remaining() > 0 else remaining_time_label.config(text="N/A")
+        print(time_controller.get_remaining())
+    
+    if time_controller.stop_condition():
+        on_cancel_button_press()
 
     # Schedule the next update
-    window.after(UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data)) 
+    window.after(UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, time_controller)) 
     
     
 # ========== START BACKGROUND THREAD & GUI LOOP ==========
@@ -346,7 +396,7 @@ thread.start()
 
 # Updates the GUI for the first time - after initially called, the update_gui() function will call itself periodically
 # until the program is terminated
-window.after(500, lambda: update_gui_and_relays(sensor_data_all))
+window.after(500, lambda: update_gui_and_relays(sensor_data_all, time_controller_all))
 
 # Starts the GUI event loop
 target_temperature_textentry.focus_set()

@@ -176,7 +176,7 @@ def read_user_input(user_input):
         user_input.running_time = 0
     else:
         try:
-            user_input.running_time = max(1, int(user_target_running_time))
+            user_input.running_time = max(0, int(user_target_running_time))
         except:
             print("Ugyldig tid input")
             user_input.is_correct = False

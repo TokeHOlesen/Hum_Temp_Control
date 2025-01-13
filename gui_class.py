@@ -23,19 +23,19 @@ class Gui:
         tk.Label(self.target_entry_frame, text="Ønsket temperatur:", font=self.data_entry_font).grid(row=0, column=0, sticky="w")
         self.target_temperature_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.target_temperature_textentry.grid(row=0, column=1, padx=(12, 0))
-        tk.Label(self.target_entry_frame, text="°C").grid(row=0, column=2, sticky="w", padx=(5, 0))
+        tk.Label(self.target_entry_frame, text="°C", font=self.data_entry_font).grid(row=0, column=2, sticky="w", padx=(5, 0))
 
         # Target humidity entry
         tk.Label(self.target_entry_frame, text="Ønsket luftfugtighed:", font=self.data_entry_font).grid(row=1, column=0, sticky="w")
         self.target_humidity_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.target_humidity_textentry.grid(row=1, column=1, padx=(12, 0))
-        tk.Label(self.target_entry_frame, text="%").grid(row=1, column=2, sticky="w", padx=(5, 0))
+        tk.Label(self.target_entry_frame, text="%", font=self.data_entry_font).grid(row=1, column=2, sticky="w", padx=(5, 0))
 
         # Running time entry
         tk.Label(self.target_entry_frame, text="Behandlingstid:", font=self.data_entry_font).grid(row=2, column=0, sticky="w")
         self.running_time_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.running_time_textentry.grid(row=2, column=1, padx=(12, 0))
-        tk.Label(self.target_entry_frame, text="min.").grid(row=2, column=2, sticky="w", padx=(5, 0))
+        tk.Label(self.target_entry_frame, text="min.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
 
         # Data display frame
         
@@ -137,37 +137,37 @@ class Gui:
 
         # Top row (Backspace)
         tk.Label(self.numpad_frame, text="").grid(row=0, column=1)
-        self.backspace_button = tk.Button(self.numpad_frame, text="Backspace", width=9, height=2, font=self.numpad_button_font, command=self.on_backspace_press)
+        self.backspace_button = tk.Button(self.numpad_frame, text="Backspace", width=9, height=2, font=self.numpad_button_font, command=self.on_backspace_button_press)
         self.backspace_button.grid(row=0, column=1, columnspan=2, padx=(18, 0), pady=2)
 
         # Second row (7, 8, 9)
-        self.num7_button = tk.Button(self.numpad_frame, text="7", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(7))
+        self.num7_button = tk.Button(self.numpad_frame, text="7", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(7))
         self.num7_button.grid(row=1, column=0, padx=2, pady=2)
-        self.num8_button = tk.Button(self.numpad_frame, text="8", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(8))
+        self.num8_button = tk.Button(self.numpad_frame, text="8", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(8))
         self.num8_button.grid(row=1, column=1, padx=2, pady=2)
-        self.num9_button = tk.Button(self.numpad_frame, text="9", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(9))
+        self.num9_button = tk.Button(self.numpad_frame, text="9", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(9))
         self.num9_button.grid(row=1, column=2, padx=2, pady=2)
 
         # Third row (4, 5, 6)
-        self.num4_button = tk.Button(self.numpad_frame, text="4", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(4))
+        self.num4_button = tk.Button(self.numpad_frame, text="4", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(4))
         self.num4_button.grid(row=2, column=0, padx=2, pady=2)
-        self.num5_button = tk.Button(self.numpad_frame, text="5", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(5))
+        self.num5_button = tk.Button(self.numpad_frame, text="5", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(5))
         self.num5_button.grid(row=2, column=1, padx=2, pady=2)
-        self.num6_button = tk.Button(self.numpad_frame, text="6", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(6))
+        self.num6_button = tk.Button(self.numpad_frame, text="6", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(6))
         self.num6_button.grid(row=2, column=2, padx=2, pady=2)
 
         # Fourth row (1, 2, 3)
-        self.num1_button = tk.Button(self.numpad_frame, text="1", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(1))
+        self.num1_button = tk.Button(self.numpad_frame, text="1", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(1))
         self.num1_button.grid(row=3, column=0, padx=2, pady=2)
-        self.num2_button = tk.Button(self.numpad_frame, text="2", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(2))
+        self.num2_button = tk.Button(self.numpad_frame, text="2", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(2))
         self.num2_button.grid(row=3, column=1, padx=2, pady=2)
-        self.num3_button = tk.Button(self.numpad_frame, text="3", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(3))
+        self.num3_button = tk.Button(self.numpad_frame, text="3", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(3))
         self.num3_button.grid(row=3, column=2, padx=2, pady=2)
 
         # Fifth row (0 and Enter)
-        self.num0_button = tk.Button(self.numpad_frame, text="0", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(0))
+        self.num0_button = tk.Button(self.numpad_frame, text="0", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_button_press(0))
         self.num0_button.grid(row=4, column=0, padx=2, pady=2)
-        self.enter_button = tk.Button(self.numpad_frame, text="Enter", width=9, height=2, font=self.numpad_button_font, command=self.on_enter_press)
+        self.enter_button = tk.Button(self.numpad_frame, text="Enter", width=9, height=2, font=self.numpad_button_font, command=self.on_enter_button_press)
         self.enter_button.grid(row=4, column=1, columnspan=2, padx=(18, 0), pady=2)
 
 
@@ -185,6 +185,19 @@ class Gui:
         self.error_label.config(text="Fejl", fg="Red") if self.relays.error_ch6.is_lit else self.error_label.config(text="Ingen fejl.", fg="Green")
         if self.time_controller.start is not None:
             self.update_time_display()
+        
+        if self.relays.running_ch5.is_lit:
+            self.start_button.config(state="disabled")
+            self.cancel_button.config(state="normal")
+            self.target_temperature_textentry.config(state="disabled")
+            self.target_humidity_textentry.config(state="disabled")
+            self.running_time_textentry.config(state="disabled")
+        else:
+            self.start_button.config(state="normal")
+            self.cancel_button.config(state="disabled")
+            self.target_temperature_textentry.config(state="normal")
+            self.target_humidity_textentry.config(state="normal")
+            self.running_time_textentry.config(state="normal")
 
     def update_time_display(self):
         # Updates elapsed time display
@@ -212,7 +225,6 @@ class Gui:
             self.clear_text_entry_fields()
             self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
             self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
-            self.target_temperature_textentry.focus_set()
         
     def on_cancel_button_press(self):
         self.relays.reset_all_channels()
@@ -224,21 +236,21 @@ class Gui:
         self.remaining_time_label.config(text="N/A")
         self.target_temperature_textentry.focus_set()
         
-    def on_number_press(self, number):
+    def on_number_button_press(self, number):
         current_widget = self.window.focus_get()
         if isinstance(current_widget, tk.Entry):
             current_text = current_widget.get()
             current_widget.delete(0, tk.END)
             current_widget.insert(0, current_text + str(number))
 
-    def on_backspace_press(self):
+    def on_backspace_button_press(self):
         current_widget = self.window.focus_get()
         if isinstance(current_widget, tk.Entry):
             current_text = current_widget.get()
             current_widget.delete(0, tk.END)
             current_widget.insert(0, current_text[:-1])
 
-    def on_enter_press(self):
+    def on_enter_button_press(self):
         widgets = [
             self.target_temperature_textentry,
             self.target_humidity_textentry,
@@ -246,13 +258,13 @@ class Gui:
             self.start_button
         ]
         
-        focused_widget = self.window.focus_get()
-        
-        if focused_widget in widgets:
-            current_index = widgets.index(focused_widget)
-            if widgets[current_index] == self.start_button:
-                if not self.relays.running_ch5.is_lit:
-                    self.on_start_button_press()
-            else:
-                next_index = (current_index + 1) % len(widgets)
-                widgets[next_index].focus_set()
+        if not self.relays.running_ch5.is_lit:
+            focused_widget = self.window.focus_get()
+            if focused_widget in widgets:
+                current_index = widgets.index(focused_widget)
+                if widgets[current_index] == self.start_button:
+                    if not self.relays.running_ch5.is_lit:
+                        self.on_start_button_press()
+                else:
+                    next_index = (current_index + 1) % len(widgets)
+                    widgets[next_index].focus_set()

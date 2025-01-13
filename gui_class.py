@@ -88,21 +88,21 @@ class Gui:
         # Button frame
 
         self.button_frame = tk.Frame(self.window)
-        self.button_frame.grid(row=2, column=0, padx=90, pady=10, sticky="nw")
+        self.button_frame.grid(row=2, column=0, padx=42, pady=5, sticky="nw")
 
         # Left spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=0)
 
-        # Start button
-        self.start_button = tk.Button(self.button_frame, text="Start", width=8, command=self.on_start_button_press)
-        self.start_button.grid(row=0, column=1)
+        # Cancel button
+        self.cancel_button = tk.Button(self.button_frame, text="Afbryd", font=("TkDefaultFont", 16), width=10, command=self.on_cancel_button_press)
+        self.cancel_button.grid(row=0, column=1)
 
         # Middle spacer
-        tk.Label(self.button_frame, text="").grid(row=0, column=2, padx=50)
+        tk.Label(self.button_frame, text="").grid(row=0, column=2, padx=20)
 
-        # Cancel button
-        self.cancel_button = tk.Button(self.button_frame, text="Afbryd", width=8, command=self.on_cancel_button_press)
-        self.cancel_button.grid(row=0, column=3)
+        # Start button
+        self.start_button = tk.Button(self.button_frame, text="Start", font=("TkDefaultFont", 16), width=10, command=self.on_start_button_press)
+        self.start_button.grid(row=0, column=3)
 
         # Right spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=4)
@@ -139,9 +139,10 @@ class Gui:
             self.update_time_display()
 
     def update_time_display(self):
+        # Updates elapsed time display
         elapsed_hours, elapsed_minutes, elapsed_seconds = self.time_controller.elapsed_h_m_s
         self.elapsed_time_label.config(text=f"{elapsed_hours:02}:{elapsed_minutes:02}:{elapsed_seconds:02}")
-        
+        # Updates remaining time display, if target set; else "Ubestemt"
         if self.time_controller.seconds_remaining > 0:
             remaining_hours, remaining_minutes, remaining_seconds = self.time_controller.remaining_h_m_s
             self.remaining_time_label.config(text=f"{remaining_hours:02}:{remaining_minutes:02}:{remaining_seconds:02}")

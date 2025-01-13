@@ -1,4 +1,4 @@
-from threading import Event
+from threading import Event, Thread
 from time import sleep
 import board
 import adafruit_dht
@@ -15,6 +15,7 @@ class Sensors:
         self.current_temp_2 = None
         # Sensor readings will continue being taken for as long as this flag is not set
         self.stop_flag = Event()
+        self.thread = Thread(target=self.read_sensors_in_thread)
         self.initialize()
 
     def initialize(self):
@@ -47,7 +48,7 @@ class Sensors:
             return round(float(temp_string) / 1000.0, 1)
         return None
 
-    def read_sensors_in_thread(self, sensor_data) -> None:
+    def read_sensors_in_thread(self) -> None:
         """
         Runs in a background thread. Reads sensor data and stores it in the sensor_data object.
         Runs until self.stop_flag is set.
@@ -55,11 +56,11 @@ class Sensors:
         while not self.stop_flag.is_set():
             try:
                 # Read from DHT22
-                sensor_data.current_temp_dht = self.dht22_sensor.temperature
-                sensor_data.current_hum_dht = self.dht22_sensor.humidity
+                self.current_temp_dht = self.dht22_sensor.temperature
+                self.current_hum_dht = self.dht22_sensor.humidity
                 # Read from DS18B20 probes
-                sensor_data.current_temp_1 = self.read_temp_from_probe(1)
-                sensor_data.current_temp_2 = self.read_temp_from_probe(2)
+                self.current_temp_1 = self.read_temp_from_probe(1)
+                self.current_temp_2 = self.read_temp_from_probe(2)
             except Exception as e:
                 print("Sensor read error:", e)
 

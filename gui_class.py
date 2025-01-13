@@ -123,6 +123,50 @@ class Gui:
         self.error_label = tk.Label(self.status_frame, fg="red", text="This is a sample error message")
         self.error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(10, 0))
         
+        # Numpad frame
+        
+        self.numpad_frame = tk.Frame(self.window)
+        self.numpad_frame.grid(row=0, column=1, rowspan=4, padx=5, pady=(10, 0), sticky="n")
+
+        # Button font settings
+        numpad_button_font = ("TkDefaultFont", 16)
+
+        # Top row (Backspace)
+        tk.Label(self.numpad_frame, text="").grid(row=0, column=1)
+        self.backspace_button = tk.Button(self.numpad_frame, text="Backspace", width=9, height=2, font=numpad_button_font, command=self.on_backspace_press)
+        self.backspace_button.grid(row=0, column=1, columnspan=2, padx=(18, 0), pady=2)
+
+        # Second row (7, 8, 9)
+        self.num7_button = tk.Button(self.numpad_frame, text="7", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(7))
+        self.num7_button.grid(row=1, column=0, padx=2, pady=2)
+        self.num8_button = tk.Button(self.numpad_frame, text="8", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(8))
+        self.num8_button.grid(row=1, column=1, padx=2, pady=2)
+        self.num9_button = tk.Button(self.numpad_frame, text="9", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(9))
+        self.num9_button.grid(row=1, column=2, padx=2, pady=2)
+
+        # Third row (4, 5, 6)
+        self.num4_button = tk.Button(self.numpad_frame, text="4", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(4))
+        self.num4_button.grid(row=2, column=0, padx=2, pady=2)
+        self.num5_button = tk.Button(self.numpad_frame, text="5", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(5))
+        self.num5_button.grid(row=2, column=1, padx=2, pady=2)
+        self.num6_button = tk.Button(self.numpad_frame, text="6", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(6))
+        self.num6_button.grid(row=2, column=2, padx=2, pady=2)
+
+        # Fourth row (1, 2, 3)
+        self.num1_button = tk.Button(self.numpad_frame, text="1", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(1))
+        self.num1_button.grid(row=3, column=0, padx=2, pady=2)
+        self.num2_button = tk.Button(self.numpad_frame, text="2", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(2))
+        self.num2_button.grid(row=3, column=1, padx=2, pady=2)
+        self.num3_button = tk.Button(self.numpad_frame, text="3", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(3))
+        self.num3_button.grid(row=3, column=2, padx=2, pady=2)
+
+        # Fifth row (0 and Enter)
+        self.num0_button = tk.Button(self.numpad_frame, text="0", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(0))
+        self.num0_button.grid(row=4, column=0, padx=2, pady=2)
+        self.enter_button = tk.Button(self.numpad_frame, text="Enter", width=9, height=2, font=numpad_button_font, command=self.on_enter_press)
+        self.enter_button.grid(row=4, column=1, columnspan=2, padx=(18, 0), pady=2)
+
+
     def update(self):
         if self.sensors.current_temp_dht is not None:
             self.actual_temperature_label.config(text=str(self.sensors.current_temp_dht) + "°C")
@@ -175,3 +219,16 @@ class Gui:
         self.elapsed_time_label.config(text="N/A")
         self.remaining_time_label.config(text="N/A")
         self.target_temperature_textentry.focus_set()
+        
+    def on_number_press(self, number):
+        current_text = self.target_temperature_textentry.get()
+        self.target_temperature_textentry.delete(0, tk.END)
+        self.target_temperature_textentry.insert(0, current_text + str(number))
+
+    def on_backspace_press(self):
+        current_text = self.target_temperature_textentry.get()
+        self.target_temperature_textentry.delete(0, tk.END)
+        self.target_temperature_textentry.insert(0, current_text[:-1])
+
+    def on_enter_press(self):
+        print("Enter pressed")

@@ -1,43 +1,23 @@
 import tkinter as tk
-from datetime import date, datetime
 from gpiozero import LED
-from threading import Thread, Event
-import csv
-import time
-import os
-import board
-import adafruit_dht
+from threading import Thread
 import RPi.GPIO as GPIO
 
 import constants
 from user_input_class import UserInput
 from time_controller_class import TimeController
+from sensors_class import Sensors
+from data_logging_function import log_data
 
 
-# ========== DATA CONTAINERS ==========
+# ========== OBJECT INITIALIZATION ==========
 
-class SensorData:
-    """Each property corresponds to data from one sensor."""
-    def __init__(self):
-        self.current_temp_dht = None
-        self.current_hum_dht = None
-        self.current_temp_1 = None
-        self.current_temp_2 = None
-
-
-sensor_data_all = SensorData()
+sensors = Sensors()
 entered_user_input = UserInput()
 time_controller_all = TimeController(entered_user_input)
 
 
-# Sensor readings will continue being taken for as long as this flag is not set
-stop_flag = Event()
-
-
 # ========== HARDWARE SETUP ==========
-
-# Initializes the DHT22 sensor
-dht22_sensor = adafruit_dht.DHT22(board.D18)
 
 # Instatiates an LED object for each relay, corresponding to the respective GPIO pin.
 # Using LED objects allows to quickly set them to high or low voltage.
@@ -47,28 +27,6 @@ affugter_ch3 = LED(13)
 damp_ch4 = LED(26)
 running_ch5 = LED(12)
 error_ch6 = LED(16)
-
-# Initializes the DS18B20 temperature probes
-os.system('modprobe w1-gpio')
-os.system('modprobe w1-therm')
-
-base_dir = '/sys/bus/w1/devices/'
-temp_sensor_1_file = base_dir + '28-0000006a045f/w1_slave'
-temp_sensor_2_file = base_dir + '28-00000085eccb/w1_slave'
-
-
-def read_temp(sensor_device_file: str):
-    """
-    Reads data from the given device file; accepts an argument that is the path to a DS18B20 probe device file.
-	Returns a float with 1 decimal place if data is found, else None.
-    """
-    with open(sensor_device_file, 'r') as file:
-        temp_data_lines = file.readlines()
-    temp_data_start_pos = temp_data_lines[1].find('t=')
-    if temp_data_start_pos != -1:
-        temp_string = temp_data_lines[1][temp_data_start_pos + 2:]
-        return round(float(temp_string) / 1000.0, 1)
-    return None
 
 
 def reset_all_channels() -> None:
@@ -80,31 +38,9 @@ def reset_all_channels() -> None:
     error_ch6.off()
 
 
-# ========== CONTINUOUS SENSOR READING ==========
-
-def read_sensors_in_thread(sensor_data, stop_event) -> None:
-    """
-    Runs in a background thread. Reads sensor data and stores it in the sensor_data object.
-    Runs until stop_event is set.
-    """
-    while not stop_event.is_set():
-        try:
-            # Read from DHT22
-            sensor_data.current_temp_dht = dht22_sensor.temperature
-            sensor_data.current_hum_dht = dht22_sensor.humidity
-            # Read from DS18B20 probes
-            sensor_data.current_temp_1 = read_temp(temp_sensor_1_file)
-            sensor_data.current_temp_2 = read_temp(temp_sensor_2_file)
-        except Exception as e:
-            print("Sensor read error:", e)
-
-        # Time between each reading (in seconds)
-        time.sleep(constants.SENSOR_PROBING_INTERVAL)
-
-
 # Called when the window is closed; cleans up.
 def close_gui() -> None:
-    stop_flag.set()
+    sensors.stop_flag.set()
     thread.join()
     GPIO.cleanup()
     window.destroy()
@@ -150,58 +86,6 @@ def update_relay_channels(sensor_data, user_input):
             affugter_ch3.off()
             damp_ch4.off()
             running_ch5.off()
-            
-
-# ========== DATA LOGGING ==========
-        
-def log_data(target_temp,
-            current_temp,
-            target_humidity,
-            current_humidity,
-            ventilator,
-            varmer,
-            affugter,
-            dampgenerator,
-            fejl):
-    
-    field_names = [
-        "tidspunkt",
-        "ønsket temperatur",
-        "faktisk temperatur",
-        "ønsket fugtighed",
-        "faktisk fughtighed",
-        "ventilator",
-        "varmer",
-        "affugter",
-        "dampgenerator",
-        "fejl"
-    ]
-    
-    now = datetime.now()
-    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
-    
-    current_date = date.today()
-    filename = f"./Logfiler/{current_date}"
-    day_log_exists = os.path.exists(filename)
-    
-    with open(filename, mode='a' if day_log_exists else 'w', newline='') as log_file:
-        writer = csv.DictWriter(log_file, fieldnames=field_names, delimiter=";")
-    
-        if not day_log_exists:
-            writer.writeheader()
-        
-        writer.writerow({
-            "tidspunkt": timestamp,
-            "ønsket temperatur": target_temp,
-            "faktisk temperatur": current_temp,
-            "ønsket fugtighed": target_humidity,
-            "faktisk fughtighed": current_humidity,
-            "ventilator": ventilator,
-            "varmer": varmer,
-            "affugter": affugter,
-            "dampgenerator": dampgenerator,
-            "fejl": fejl
-        })
             
 
 # ========== GUI ==========
@@ -351,14 +235,14 @@ error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(
 
 # ========== PERIODIC GUI AND RELAY UPDATE ==========
 
-def update_gui_and_relays(sensor_data, time_controller):
+def update_gui_and_relays(sensors, time_controller):
     """Updates the state of the relays and the GUI labels."""
-    if sensor_data.current_temp_dht is not None:
-        actual_temperature_label.config(text=str(sensor_data.current_temp_dht) + "°C")
-    if sensor_data.current_hum_dht is not None:
-        actual_humidity_label.config(text=str(sensor_data.current_hum_dht) + "%")
+    if sensors.current_temp_dht is not None:
+        actual_temperature_label.config(text=str(sensors.current_temp_dht) + "°C")
+    if sensors.current_hum_dht is not None:
+        actual_humidity_label.config(text=str(sensors.current_hum_dht) + "%")
         
-    update_relay_channels(sensor_data_all, entered_user_input)
+    update_relay_channels(sensors, entered_user_input)
     
     ventilator_label.config(text="ON", fg="Green") if ventilator_ch1.is_lit else ventilator_label.config(text="OFF", fg="Red")
     varmer_label.config(text="ON", fg="Green") if varmer_ch2.is_lit else varmer_label.config(text="OFF", fg="Red")
@@ -374,9 +258,9 @@ def update_gui_and_relays(sensor_data, time_controller):
     if running_ch5.is_lit:
         if time_controller.log_condition():
             log_data(entered_user_input.target_temp,
-                    sensor_data.current_temp_dht,
+                    sensors.current_temp_dht,
                     entered_user_input.target_humidity,
-                    sensor_data.current_hum_dht,
+                    sensors.current_hum_dht,
                     int(ventilator_ch1.is_lit),
                     int(varmer_ch2.is_lit),
                     int(affugter_ch3.is_lit),
@@ -388,18 +272,18 @@ def update_gui_and_relays(sensor_data, time_controller):
             on_cancel_button_press()
 
     # Schedule the next update
-    window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, time_controller)) 
+    window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensors, time_controller)) 
     
     
 # ========== START BACKGROUND THREAD & GUI LOOP ==========
 
 # Create and start the thread that reads the sensors continuously
-thread = Thread(target=read_sensors_in_thread, args=(sensor_data_all, stop_flag,))
+thread = Thread(target=sensors.read_sensors_in_thread, args=(sensors,))
 thread.start()
 
 # Updates the GUI for the first time - after initially called, the update_gui() function will call itself periodically
 # until the program is terminated
-window.after(500, lambda: update_gui_and_relays(sensor_data_all, time_controller_all))
+window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensors, time_controller_all))
 
 # Starts the GUI event loop
 target_temperature_textentry.focus_set()

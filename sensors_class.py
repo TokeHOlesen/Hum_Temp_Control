@@ -1,4 +1,4 @@
-from threading import Thread, Event
+from threading import Event
 from time import sleep
 import board
 import adafruit_dht
@@ -15,10 +15,9 @@ class Sensors:
         self.current_temp_2 = None
         # Sensor readings will continue being taken for as long as this flag is not set
         self.stop_flag = Event()
-        # Set to True if the sensor have been initialized properly
-        self.is_initialized = False
+        self.initialize()
 
-    def initialize_sensors(self):
+    def initialize(self):
         # Initializes the DHT22 humidity and temperature sensor
         self.dht22_sensor = adafruit_dht.DHT22(board.D18)
         # Initializes the DS18B20 temperature probes
@@ -27,7 +26,6 @@ class Sensors:
         self.base_dir = '/sys/bus/w1/devices/'
         self.temp_sensor_1_file = self.base_dir + '28-0000006a045f/w1_slave'
         self.temp_sensor_2_file = self.base_dir + '28-00000085eccb/w1_slave'
-        self.is_initialized = True
         
     def read_temp_from_probe(self, probe_number: int):
         """

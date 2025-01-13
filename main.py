@@ -9,24 +9,9 @@ import board
 import adafruit_dht
 import RPi.GPIO as GPIO
 
-# ========== CONSTANTS ==========
-
-# Time between sensor readings, in seconds
-SENSOR_PROBING_INTERVAL = 2
-# How often to update the GUI and relay channels, in milliseconds
-UPDATE_FREQUENCY = 500
-# How often to log data, in seconds
-LOGGING_FREQUENCY = 120
-# How many degrees the temperature has to differ from target before the heater is turned on or off
-TEMPERATURE_TOLERANCE = 2
-# How much the humidity has to differ from target before the (de)humidifier is turned on or off
-HUMIDITY_TOLERANCE = 2
-# How much the temperature can differ from target before humidifier and dehumidifier can be turned on or off
-HUMIDITY_CONTROL_THRESHOLD = 10
-# Highest allowed temperature
-MAX_TEMP = 45
-# Highest allowed humidity
-MAX_HUMIDITY = 100
+import constants
+from user_input_class import UserInput
+from time_controller_class import TimeController
 
 
 # ========== DATA CONTAINERS ==========
@@ -41,85 +26,8 @@ class SensorData:
 
 
 sensor_data_all = SensorData()
-
-
-class UserInput:
-    def __init__(self) -> None:
-        self.reset()
-    
-    def reset(self) -> None:
-        self.is_correct = False
-        self.target_temp = None
-        self.target_humidity = None
-        self.running_time = None
-    
-    def read(self,
-             user_target_temp,
-             user_target_humidity,
-             user_target_running_time) -> None:
-        # Sets the .is_correct flag to True. If any of the inputs are incorrect, it will be set to False
-        self.is_correct = True
-        
-        try:
-            self.target_temp = min(int(user_target_temp), MAX_TEMP)
-        except:
-            print("Ugyldig temperatur input")
-            self.is_correct = False
-        
-        try:
-            self.target_humidity = max(0, min(int(user_target_humidity), MAX_HUMIDITY))
-        except:
-            print("Ugyldig fugtighed input")
-            self.is_correct = False
-        
-        if user_target_running_time == "":
-            self.running_time = 0
-        else:
-            try:
-                self.running_time = max(0, int(user_target_running_time))
-            except:
-                print("Ugyldig tid input")
-                self.is_correct = False
-
-
 entered_user_input = UserInput()
-
-
-class TimeController:
-    def __init__(self):
-        self.log_written = False
-        self.reset()
-    
-    def start_timer(self):
-        self.start = time.perf_counter()
-        
-    def get_remaining(self):
-        return entered_user_input.running_time * 60 - self.get_elapsed()
-    
-    def get_elapsed(self):
-        return int(time.perf_counter() - self.start)
-    
-    def stop_condition(self):
-        if entered_user_input.running_time is not None:
-            if entered_user_input.running_time > 0 and self.get_remaining() <= 0:
-                return True
-            return False
-        return False
-    
-    def log_condition(self):
-        if self.get_elapsed() % LOGGING_FREQUENCY == 0 and not self.log_written:
-            self.log_written = True
-            return True
-        self.log_written = False
-        return False
-    
-    def reset(self):
-        self.start = None
-        self.elapsed = None
-        self.remaining = None
-        
-
-time_controller_all = TimeController()
+time_controller_all = TimeController(entered_user_input)
 
 
 # Sensor readings will continue being taken for as long as this flag is not set
@@ -191,7 +99,7 @@ def read_sensors_in_thread(sensor_data, stop_event) -> None:
             print("Sensor read error:", e)
 
         # Time between each reading (in seconds)
-        time.sleep(SENSOR_PROBING_INTERVAL)
+        time.sleep(constants.SENSOR_PROBING_INTERVAL)
 
 
 # Called when the window is closed; cleans up.
@@ -220,18 +128,18 @@ def update_relay_channels(sensor_data, user_input):
         
         if ventilator_ch1.is_lit:
             # Only turns the heater on if the temperature is lower than target, minus acceptable tolerance
-            if sensor_data.current_temp_dht <= user_input.target_temp - TEMPERATURE_TOLERANCE:
+            if sensor_data.current_temp_dht <= user_input.target_temp - constants.TEMPERATURE_TOLERANCE:
                 varmer_ch2.on()
             else:
                 varmer_ch2.off()
             
             # Checks if the current temperature is within a set range of temperatures from target
             # Humidifier and dehumidifier won't be turned on otherwise
-            if abs(sensor_data.current_temp_dht - user_input.target_temp) <= HUMIDITY_CONTROL_THRESHOLD:
-                if sensor_data.current_hum_dht < user_input.target_humidity - HUMIDITY_TOLERANCE:
+            if abs(sensor_data.current_temp_dht - user_input.target_temp) <= constants.HUMIDITY_CONTROL_THRESHOLD:
+                if sensor_data.current_hum_dht < user_input.target_humidity - constants.HUMIDITY_TOLERANCE:
                     affugter_ch3.off()
                     damp_ch4.on()
-                elif sensor_data.current_hum_dht > user_input.target_humidity + HUMIDITY_TOLERANCE:
+                elif sensor_data.current_hum_dht > user_input.target_humidity + constants.HUMIDITY_TOLERANCE:
                     affugter_ch3.on()
                     damp_ch4.off()
             else:
@@ -480,7 +388,7 @@ def update_gui_and_relays(sensor_data, time_controller):
             on_cancel_button_press()
 
     # Schedule the next update
-    window.after(UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, time_controller)) 
+    window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, time_controller)) 
     
     
 # ========== START BACKGROUND THREAD & GUI LOOP ==========

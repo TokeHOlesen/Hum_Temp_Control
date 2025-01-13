@@ -15,30 +15,32 @@ class Gui:
         # Data entry frame
 
         self.target_entry_frame = tk.Frame(self.window)
-        self.target_entry_frame.grid(row=0, column=0, padx=110, pady=10, sticky="nw")
+        self.target_entry_frame.grid(row=0, column=0, padx=70, pady=(10, 5), sticky="nw")
+        
+        self.data_entry_font = ("TkDefaultFont", 13)
 
         # Target temperature entry
-        tk.Label(self.target_entry_frame, text="Ønsket temperatur:").grid(row=0, column=0, sticky="w")
-        self.target_temperature_textentry = tk.Entry(self.target_entry_frame, width=8)
+        tk.Label(self.target_entry_frame, text="Ønsket temperatur:", font=self.data_entry_font).grid(row=0, column=0, sticky="w")
+        self.target_temperature_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.target_temperature_textentry.grid(row=0, column=1, padx=(12, 0))
         tk.Label(self.target_entry_frame, text="°C").grid(row=0, column=2, sticky="w", padx=(5, 0))
 
         # Target humidity entry
-        tk.Label(self.target_entry_frame, text="Ønsket luftfugtighed:").grid(row=1, column=0, sticky="w")
-        self.target_humidity_textentry = tk.Entry(self.target_entry_frame, width=8)
+        tk.Label(self.target_entry_frame, text="Ønsket luftfugtighed:", font=self.data_entry_font).grid(row=1, column=0, sticky="w")
+        self.target_humidity_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.target_humidity_textentry.grid(row=1, column=1, padx=(12, 0))
         tk.Label(self.target_entry_frame, text="%").grid(row=1, column=2, sticky="w", padx=(5, 0))
 
         # Running time entry
-        tk.Label(self.target_entry_frame, text="Behandlingstid:").grid(row=2, column=0, sticky="w")
-        self.running_time_textentry = tk.Entry(self.target_entry_frame, width=8)
+        tk.Label(self.target_entry_frame, text="Behandlingstid:", font=self.data_entry_font).grid(row=2, column=0, sticky="w")
+        self.running_time_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.running_time_textentry.grid(row=2, column=1, padx=(12, 0))
         tk.Label(self.target_entry_frame, text="min.").grid(row=2, column=2, sticky="w", padx=(5, 0))
 
         # Data display frame
         
         self.data_display_frame = tk.Frame(self.window, borderwidth=1, relief="sunken")
-        self.data_display_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nw")
+        self.data_display_frame.grid(row=1, column=0, padx=(15, 10), pady=10, sticky="nw")
 
         # Temperature
         tk.Label(self.data_display_frame, text="Ønsket temperatur:").grid(row=0, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
@@ -88,21 +90,23 @@ class Gui:
         # Button frame
 
         self.button_frame = tk.Frame(self.window)
-        self.button_frame.grid(row=2, column=0, padx=42, pady=5, sticky="nw")
+        self.button_frame.grid(row=2, column=0, padx=48, pady=5, sticky="nw")
+        
+        self.button_font = ("TkDefaultFont", 16)
 
         # Left spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=0)
 
-        # Cancel button
-        self.cancel_button = tk.Button(self.button_frame, text="Afbryd", font=("TkDefaultFont", 16), width=10, command=self.on_cancel_button_press)
-        self.cancel_button.grid(row=0, column=1)
+        # Start button
+        self.start_button = tk.Button(self.button_frame, text="Start", font=self.button_font, width=10, command=self.on_start_button_press)
+        self.start_button.grid(row=0, column=3)
 
         # Middle spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=2, padx=20)
 
-        # Start button
-        self.start_button = tk.Button(self.button_frame, text="Start", font=("TkDefaultFont", 16), width=10, command=self.on_start_button_press)
-        self.start_button.grid(row=0, column=3)
+        # Cancel button
+        self.cancel_button = tk.Button(self.button_frame, text="Afbryd", font=self.button_font, width=10, command=self.on_cancel_button_press)
+        self.cancel_button.grid(row=0, column=1)
 
         # Right spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=4)
@@ -129,41 +133,41 @@ class Gui:
         self.numpad_frame.grid(row=0, column=1, rowspan=4, padx=5, pady=(10, 0), sticky="n")
 
         # Button font settings
-        numpad_button_font = ("TkDefaultFont", 16)
+        self.numpad_button_font = ("TkDefaultFont", 16)
 
         # Top row (Backspace)
         tk.Label(self.numpad_frame, text="").grid(row=0, column=1)
-        self.backspace_button = tk.Button(self.numpad_frame, text="Backspace", width=9, height=2, font=numpad_button_font, command=self.on_backspace_press)
+        self.backspace_button = tk.Button(self.numpad_frame, text="Backspace", width=9, height=2, font=self.numpad_button_font, command=self.on_backspace_press)
         self.backspace_button.grid(row=0, column=1, columnspan=2, padx=(18, 0), pady=2)
 
         # Second row (7, 8, 9)
-        self.num7_button = tk.Button(self.numpad_frame, text="7", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(7))
+        self.num7_button = tk.Button(self.numpad_frame, text="7", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(7))
         self.num7_button.grid(row=1, column=0, padx=2, pady=2)
-        self.num8_button = tk.Button(self.numpad_frame, text="8", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(8))
+        self.num8_button = tk.Button(self.numpad_frame, text="8", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(8))
         self.num8_button.grid(row=1, column=1, padx=2, pady=2)
-        self.num9_button = tk.Button(self.numpad_frame, text="9", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(9))
+        self.num9_button = tk.Button(self.numpad_frame, text="9", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(9))
         self.num9_button.grid(row=1, column=2, padx=2, pady=2)
 
         # Third row (4, 5, 6)
-        self.num4_button = tk.Button(self.numpad_frame, text="4", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(4))
+        self.num4_button = tk.Button(self.numpad_frame, text="4", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(4))
         self.num4_button.grid(row=2, column=0, padx=2, pady=2)
-        self.num5_button = tk.Button(self.numpad_frame, text="5", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(5))
+        self.num5_button = tk.Button(self.numpad_frame, text="5", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(5))
         self.num5_button.grid(row=2, column=1, padx=2, pady=2)
-        self.num6_button = tk.Button(self.numpad_frame, text="6", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(6))
+        self.num6_button = tk.Button(self.numpad_frame, text="6", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(6))
         self.num6_button.grid(row=2, column=2, padx=2, pady=2)
 
         # Fourth row (1, 2, 3)
-        self.num1_button = tk.Button(self.numpad_frame, text="1", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(1))
+        self.num1_button = tk.Button(self.numpad_frame, text="1", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(1))
         self.num1_button.grid(row=3, column=0, padx=2, pady=2)
-        self.num2_button = tk.Button(self.numpad_frame, text="2", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(2))
+        self.num2_button = tk.Button(self.numpad_frame, text="2", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(2))
         self.num2_button.grid(row=3, column=1, padx=2, pady=2)
-        self.num3_button = tk.Button(self.numpad_frame, text="3", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(3))
+        self.num3_button = tk.Button(self.numpad_frame, text="3", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(3))
         self.num3_button.grid(row=3, column=2, padx=2, pady=2)
 
         # Fifth row (0 and Enter)
-        self.num0_button = tk.Button(self.numpad_frame, text="0", width=4, height=2, font=numpad_button_font, command=lambda: self.on_number_press(0))
+        self.num0_button = tk.Button(self.numpad_frame, text="0", width=4, height=2, font=self.numpad_button_font, command=lambda: self.on_number_press(0))
         self.num0_button.grid(row=4, column=0, padx=2, pady=2)
-        self.enter_button = tk.Button(self.numpad_frame, text="Enter", width=9, height=2, font=numpad_button_font, command=self.on_enter_press)
+        self.enter_button = tk.Button(self.numpad_frame, text="Enter", width=9, height=2, font=self.numpad_button_font, command=self.on_enter_press)
         self.enter_button.grid(row=4, column=1, columnspan=2, padx=(18, 0), pady=2)
 
 
@@ -221,14 +225,34 @@ class Gui:
         self.target_temperature_textentry.focus_set()
         
     def on_number_press(self, number):
-        current_text = self.target_temperature_textentry.get()
-        self.target_temperature_textentry.delete(0, tk.END)
-        self.target_temperature_textentry.insert(0, current_text + str(number))
+        current_widget = self.window.focus_get()
+        if isinstance(current_widget, tk.Entry):
+            current_text = current_widget.get()
+            current_widget.delete(0, tk.END)
+            current_widget.insert(0, current_text + str(number))
 
     def on_backspace_press(self):
-        current_text = self.target_temperature_textentry.get()
-        self.target_temperature_textentry.delete(0, tk.END)
-        self.target_temperature_textentry.insert(0, current_text[:-1])
+        current_widget = self.window.focus_get()
+        if isinstance(current_widget, tk.Entry):
+            current_text = current_widget.get()
+            current_widget.delete(0, tk.END)
+            current_widget.insert(0, current_text[:-1])
 
     def on_enter_press(self):
-        print("Enter pressed")
+        widgets = [
+            self.target_temperature_textentry,
+            self.target_humidity_textentry,
+            self.running_time_textentry,
+            self.start_button
+        ]
+        
+        focused_widget = self.window.focus_get()
+        
+        if focused_widget in widgets:
+            current_index = widgets.index(focused_widget)
+            if widgets[current_index] == self.start_button:
+                if not self.relays.running_ch5.is_lit:
+                    self.on_start_button_press()
+            else:
+                next_index = (current_index + 1) % len(widgets)
+                widgets[next_index].focus_set()

@@ -13,9 +13,10 @@ class Sensors:
         self.current_hum_dht = None
         self.current_temp_1 = None
         self.current_temp_2 = None
+        # Initializes a thread that will run in the background and continuously update sensor readings
+        self.thread = Thread(target=self.read_sensors_in_thread)
         # Sensor readings will continue being taken for as long as this flag is not set
         self.stop_flag = Event()
-        self.thread = Thread(target=self.read_sensors_in_thread)
         self.initialize()
 
     def initialize(self):

@@ -38,7 +38,7 @@ def update_gui_and_relays(sensor_data, relay_data, timer):
     
     # When running, updates the log file periodically
     if relay_data.running_ch5.is_lit:
-        if timer.log_condition():
+        if timer.log_condition:
             log_data(user_input.target_temp,
                     sensor_data.current_temp_dht,
                     user_input.target_humidity,
@@ -49,7 +49,7 @@ def update_gui_and_relays(sensor_data, relay_data, timer):
                     int(relay_data.damp_ch4.is_lit),
                     int(relay_data.error_ch6.is_lit))
         
-        if timer.stop_condition():
+        if timer.stop_condition:
             gui.on_cancel_button_press()
 
     # Schedule the next update

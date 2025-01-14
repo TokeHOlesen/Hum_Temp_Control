@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox
+
+from dialog_window_functions import askyesno_dialog
 
 
 class Gui:
@@ -247,7 +248,7 @@ class Gui:
             self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
         
     def on_cancel_button_press(self):
-        if self.askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde kørslen?"):
+        if askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde kørslen?"):
             self.cancel_process()
     
     def cancel_process(self):
@@ -292,48 +293,4 @@ class Gui:
                 else:
                     next_index = (current_index + 1) % len(widgets)
                     widgets[next_index].focus_set()
-                    
-    def askyesno_dialog(self, title, message):
-        dialog = tk.Toplevel()
-        dialog.title(title)
-        dialog.geometry("520x130")
-        dialog.resizable(False, False)
-        dialog_font = ("TkDefaultFont", 16)
-
-        label = tk.Label(dialog, text=message, font=dialog_font, pady=10,)
-        label.pack()
-
-        response = tk.BooleanVar(value=False)
-        
-        no_button = tk.Button(dialog, text="Nej", width=10, font=dialog_font, command=lambda: (response.set(False), dialog.destroy()))
-        no_button.bind("<Return>", lambda event: (response.set(False), dialog.destroy()))
-        no_button.bind("<KP_Enter>", lambda event: (response.set(False), dialog.destroy()))
-        no_button.pack(side=tk.LEFT, padx=(60, 0), pady=(0, 20))
-        yes_button = tk.Button(dialog, text="Ja", width=10, font=dialog_font, command=lambda: (response.set(True), dialog.destroy()))
-        yes_button.bind("<Return>", lambda event: (response.set(True), dialog.destroy()))
-        yes_button.bind("<KP_Enter>", lambda event: (response.set(True), dialog.destroy()))
-        yes_button.pack(side=tk.RIGHT, padx=(0, 60), pady=(0, 20))
-
-        dialog.grab_set()
-        dialog.wait_window()
-
-        return response.get()
-    
-    def info_dialog(self, title, message):
-        dialog = tk.Toplevel()
-        dialog.title(title)
-        dialog.geometry("520x130")
-        dialog.resizable(False, False)
-        dialog_font = ("TkDefaultFont", 16)
-        
-        label = tk.Label(dialog, text=message, font=dialog_font, pady=10,)
-        label.pack()
-        
-        ok_button = tk.Button(dialog, text="OK", width=10, font=dialog_font, command=lambda: dialog.destroy())
-        ok_button.bind("<Return>", lambda event: dialog.destroy())
-        ok_button.bind("<KP_Enter>", lambda event: dialog.destroy())
-        ok_button.pack()
-        
-        dialog.grab_set()
-        dialog.wait_window()
         

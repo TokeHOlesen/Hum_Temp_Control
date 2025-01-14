@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 
 class Gui:
@@ -23,18 +24,29 @@ class Gui:
         tk.Label(self.target_entry_frame, text="Ønsket temperatur:", font=self.data_entry_font).grid(row=0, column=0, sticky="w")
         self.target_temperature_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.target_temperature_textentry.grid(row=0, column=1, padx=(12, 0))
+        self.target_temperature_textentry.bind("<Return>", lambda event: self.target_humidity_textentry.focus_set())
+        self.target_temperature_textentry.bind("<KP_Enter>", lambda event: self.target_humidity_textentry.focus_set())
+        self.target_temperature_textentry.bind("<Down>", lambda event: self.target_humidity_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="°C", font=self.data_entry_font).grid(row=0, column=2, sticky="w", padx=(5, 0))
 
         # Target humidity entry
         tk.Label(self.target_entry_frame, text="Ønsket luftfugtighed:", font=self.data_entry_font).grid(row=1, column=0, sticky="w")
         self.target_humidity_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.target_humidity_textentry.grid(row=1, column=1, padx=(12, 0))
+        self.target_humidity_textentry.bind("<Return>", lambda event: self.running_time_textentry.focus_set())
+        self.target_humidity_textentry.bind("<KP_Enter>", lambda event: self.running_time_textentry.focus_set())
+        self.target_humidity_textentry.bind("<Down>", lambda event: self.running_time_textentry.focus_set())
+        self.target_humidity_textentry.bind("<Up>", lambda event: self.target_temperature_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="%", font=self.data_entry_font).grid(row=1, column=2, sticky="w", padx=(5, 0))
 
         # Running time entry
         tk.Label(self.target_entry_frame, text="Behandlingstid:", font=self.data_entry_font).grid(row=2, column=0, sticky="w")
         self.running_time_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
         self.running_time_textentry.grid(row=2, column=1, padx=(12, 0))
+        self.running_time_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
+        self.running_time_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
+        self.running_time_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.running_time_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="min.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
 
         # Data display frame
@@ -100,6 +112,10 @@ class Gui:
         # Start button
         self.start_button = tk.Button(self.button_frame, text="Start", font=self.button_font, width=10, command=self.on_start_button_press)
         self.start_button.grid(row=0, column=3)
+        self.start_button.bind("<Return>", lambda event: self.on_start_button_press())
+        self.start_button.bind("<KP_Enter>", lambda event: self.on_start_button_press())
+        self.start_button.bind("<Left>", lambda event: self.cancel_button.focus_set())
+        self.start_button.bind("<Up>", lambda event: self.running_time_textentry.focus_set())
 
         # Middle spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=2, padx=20)
@@ -107,6 +123,10 @@ class Gui:
         # Cancel button
         self.cancel_button = tk.Button(self.button_frame, text="Afbryd", font=self.button_font, width=10, command=self.on_cancel_button_press)
         self.cancel_button.grid(row=0, column=1)
+        self.cancel_button.bind("<Return>", lambda event: self.on_cancel_button_press())
+        self.cancel_button.bind("<KP_Enter>", lambda event: self.on_cancel_button_press())
+        self.cancel_button.bind("<Right>", lambda event: self.start_button.focus_set())
+        self.cancel_button.bind("<Up>", lambda event: self.running_time_textentry.focus_set())
 
         # Right spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=4)
@@ -227,6 +247,10 @@ class Gui:
             self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
         
     def on_cancel_button_press(self):
+        if self.askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde kørslen?"):
+            self.cancel_process()
+    
+    def cancel_process(self):
         self.relays.reset_all_channels()
         self.time_controller.reset()
         self.user_input.reset()
@@ -235,7 +259,7 @@ class Gui:
         self.elapsed_time_label.config(text="N/A")
         self.remaining_time_label.config(text="N/A")
         self.target_temperature_textentry.focus_set()
-        
+
     def on_number_button_press(self, number):
         current_widget = self.window.focus_get()
         if isinstance(current_widget, tk.Entry):
@@ -268,3 +292,48 @@ class Gui:
                 else:
                     next_index = (current_index + 1) % len(widgets)
                     widgets[next_index].focus_set()
+                    
+    def askyesno_dialog(self, title, message):
+        dialog = tk.Toplevel()
+        dialog.title(title)
+        dialog.geometry("520x130")
+        dialog.resizable(False, False)
+        dialog_font = ("TkDefaultFont", 16)
+
+        label = tk.Label(dialog, text=message, font=dialog_font, pady=10,)
+        label.pack()
+
+        response = tk.BooleanVar(value=False)
+        
+        no_button = tk.Button(dialog, text="Nej", width=10, font=dialog_font, command=lambda: (response.set(False), dialog.destroy()))
+        no_button.bind("<Return>", lambda event: (response.set(False), dialog.destroy()))
+        no_button.bind("<KP_Enter>", lambda event: (response.set(False), dialog.destroy()))
+        no_button.pack(side=tk.LEFT, padx=(60, 0), pady=(0, 20))
+        yes_button = tk.Button(dialog, text="Ja", width=10, font=dialog_font, command=lambda: (response.set(True), dialog.destroy()))
+        yes_button.bind("<Return>", lambda event: (response.set(True), dialog.destroy()))
+        yes_button.bind("<KP_Enter>", lambda event: (response.set(True), dialog.destroy()))
+        yes_button.pack(side=tk.RIGHT, padx=(0, 60), pady=(0, 20))
+
+        dialog.grab_set()
+        dialog.wait_window()
+
+        return response.get()
+    
+    def info_dialog(self, title, message):
+        dialog = tk.Toplevel()
+        dialog.title(title)
+        dialog.geometry("520x130")
+        dialog.resizable(False, False)
+        dialog_font = ("TkDefaultFont", 16)
+        
+        label = tk.Label(dialog, text=message, font=dialog_font, pady=10,)
+        label.pack()
+        
+        ok_button = tk.Button(dialog, text="OK", width=10, font=dialog_font, command=lambda: dialog.destroy())
+        ok_button.bind("<Return>", lambda event: dialog.destroy())
+        ok_button.bind("<KP_Enter>", lambda event: dialog.destroy())
+        ok_button.pack()
+        
+        dialog.grab_set()
+        dialog.wait_window()
+        

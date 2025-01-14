@@ -8,7 +8,6 @@ from sensors_class import Sensors
 from gui_class import Gui
 from data_logging_function import log_data
 
-
 def main():
     # Starts the thread that reads the sensors continuously
     sensors.thread.start()
@@ -50,7 +49,7 @@ def update_gui_and_relays(sensor_data, relay_data, timer):
                     int(relay_data.error_ch6.is_lit))
         
         if timer.stop_condition:
-            gui.on_cancel_button_press()
+            gui.cancel_process()
 
     # Schedule the next update
     gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, relay_data, timer))
@@ -58,10 +57,14 @@ def update_gui_and_relays(sensor_data, relay_data, timer):
 
 def close_gui() -> None:
     """Called when the window is closed; cleans up."""
-    sensors.stop_flag.set()
-    sensors.thread.join()
-    GPIO.cleanup()
-    gui.window.destroy()
+    if relays.running_ch5.is_lit:
+        gui.info_dialog("Maskinerne er i drift", "Den igangværende kørsel skal afluttes,\ninden programmet kan lukkes.")
+        return
+    if gui.askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil lukke programmet?"):
+        sensors.stop_flag.set()
+        sensors.thread.join()
+        GPIO.cleanup()
+        gui.window.destroy()
 
 
 if __name__ == "__main__":

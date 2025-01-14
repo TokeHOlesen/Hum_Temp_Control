@@ -14,3 +14,5 @@ HUMIDITY_CONTROL_THRESHOLD = 10
 MAX_TEMP = 45
 # Highest allowed humidity
 MAX_HUMIDITY = 100
+# How long the process can be scheduled for, in minutes
+MAX_TIME = 720

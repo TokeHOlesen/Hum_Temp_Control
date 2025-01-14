@@ -1,5 +1,7 @@
 import constants
 
+from dialog_window_functions import info_dialog
+from error_definitions import ValueOutsideRangeError, ValueMissingError
 
 class UserInput:
     def __init__(self) -> None:
@@ -19,22 +21,47 @@ class UserInput:
         self.is_correct = True
         
         try:
-            self.target_temp = min(int(user_target_temp), constants.MAX_TEMP)
-        except:
-            print("Ugyldig temperatur input")
+            if user_target_temp == "":
+                raise ValueMissingError
+            self.target_temp = int(user_target_temp)
+            if self.target_temp not in range(0, constants.MAX_TEMP + 1):
+                raise ValueOutsideRangeError
+        except ValueMissingError:
+            info_dialog("Ugyldigt input", f"Du skal indtaste den ønskede temperatur\n(0 - {constants.MAX_TEMP}°C).")
+            self.is_correct = False
+        except ValueOutsideRangeError:
+            info_dialog("Ugyldigt input", f"Den ønskede temperatur skal være\nmellem 0 og {constants.MAX_TEMP}°C.")
+            self.is_correct = False
+        except ValueError:
+            info_dialog("Ugyldigt input", f"Den ønskede temperatur skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")
             self.is_correct = False
         
         try:
-            self.target_humidity = max(0, min(int(user_target_humidity), constants.MAX_HUMIDITY))
-        except:
-            print("Ugyldig fugtighed input")
+            if user_target_humidity == "":
+                raise ValueMissingError
+            self.target_humidity = int(user_target_humidity)
+            if self.target_humidity not in range(0, constants.MAX_HUMIDITY + 1):
+                raise ValueOutsideRangeError
+        except ValueMissingError:
+            info_dialog("Ugyldigt input", f"Du skal indtaste den ønskede\nluftfugtighed (0 - {constants.MAX_HUMIDITY}%).")
+            self.is_correct = False
+        except ValueOutsideRangeError:
+            info_dialog("Ugyldigt input", f"Den ønskede luftfugtighed skal være\nmellem 0 og {constants.MAX_HUMIDITY}%.")
+            self.is_correct = False
+        except ValueError:
+            info_dialog("Ugyldigt input", f"Den ønskede luftfugtighed skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")
             self.is_correct = False
         
         if user_target_running_time == "":
             self.running_time = 0
         else:
             try:
-                self.running_time = max(0, int(user_target_running_time))
-            except:
-                print("Ugyldig tid input")
+                self.running_time = int(user_target_running_time)
+                if self.running_time not in range(0, constants.MAX_TIME + 1):
+                    raise ValueOutsideRangeError
+            except ValueOutsideRangeError:
+                info_dialog("Ugyldigt input", f"Den ønskede køretid skal være\nmellem 1 og {constants.MAX_TIME} minutter (0 for ubestemt).")
+                self.is_correct = False
+            except ValueError:
+                info_dialog("Ugyldigt input", f"Den ønskede køretid skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")
                 self.is_correct = False

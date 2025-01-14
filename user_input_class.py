@@ -24,13 +24,13 @@ class UserInput:
             if user_target_temp == "":
                 raise ValueMissingError
             self.target_temp = int(user_target_temp)
-            if self.target_temp not in range(0, constants.MAX_TEMP + 1):
+            if self.target_temp not in range(constants.MIN_TEMP, constants.MAX_TEMP + 1):
                 raise ValueOutsideRangeError
         except ValueMissingError:
-            info_dialog("Ugyldigt input", f"Du skal indtaste den ønskede temperatur\n(0 - {constants.MAX_TEMP}°C).")
+            info_dialog("Ugyldigt input", f"Du skal indtaste den ønskede temperatur\n({constants.MIN_TEMP} - {constants.MAX_TEMP}°C).")
             self.is_correct = False
         except ValueOutsideRangeError:
-            info_dialog("Ugyldigt input", f"Den ønskede temperatur skal være\nmellem 0 og {constants.MAX_TEMP}°C.")
+            info_dialog("Ugyldigt input", f"Den ønskede temperatur skal være\nmellem {constants.MIN_TEMP} og {constants.MAX_TEMP}°C.")
             self.is_correct = False
         except ValueError:
             info_dialog("Ugyldigt input", f"Den ønskede temperatur skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")
@@ -40,13 +40,13 @@ class UserInput:
             if user_target_humidity == "":
                 raise ValueMissingError
             self.target_humidity = int(user_target_humidity)
-            if self.target_humidity not in range(0, constants.MAX_HUMIDITY + 1):
+            if self.target_humidity not in range(constants.MIN_HUMIDITY, constants.MAX_HUMIDITY + 1):
                 raise ValueOutsideRangeError
         except ValueMissingError:
-            info_dialog("Ugyldigt input", f"Du skal indtaste den ønskede\nluftfugtighed (0 - {constants.MAX_HUMIDITY}%).")
+            info_dialog("Ugyldigt input", f"Du skal indtaste den ønskede\nluftfugtighed ({constants.MIN_HUMIDITY} - {constants.MAX_HUMIDITY}%).")
             self.is_correct = False
         except ValueOutsideRangeError:
-            info_dialog("Ugyldigt input", f"Den ønskede luftfugtighed skal være\nmellem 0 og {constants.MAX_HUMIDITY}%.")
+            info_dialog("Ugyldigt input", f"Den ønskede luftfugtighed skal være\nmellem {constants.MIN_HUMIDITY} og {constants.MAX_HUMIDITY}%.")
             self.is_correct = False
         except ValueError:
             info_dialog("Ugyldigt input", f"Den ønskede luftfugtighed skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")

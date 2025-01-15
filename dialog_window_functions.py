@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-def askyesno_dialog(title, message):
+def askyesno_dialog(title, message) -> bool:
     dialog = tk.Toplevel()
     dialog.title(title)
     dialog.geometry("520x130")
@@ -30,7 +30,7 @@ def askyesno_dialog(title, message):
     return response.get()
 
 
-def info_dialog(title, message):
+def info_dialog(title, message) -> None:
     dialog = tk.Toplevel()
     dialog.title(title)
     dialog.geometry("520x130")

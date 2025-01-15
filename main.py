@@ -24,10 +24,16 @@ def main():
 
 
 # Object initialization
+
+# Defines the relay to GPIO connections and contains the code that sets them to high or low depending on sensor readings
 relays = Relays()
+# Initializes the sensors and provides an interface to access sensor readings
 sensors = Sensors()
+# Provides an interface to read and check user input
 user_input = UserInput()
+# Provides a clock and associated events
 time_controller = TimeController(user_input)
+# User interface
 gui = Gui(relays, sensors, user_input, time_controller)
 
 

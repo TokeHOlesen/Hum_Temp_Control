@@ -8,7 +8,7 @@ import constants
 
 
 class Sensors:
-    def __init__(self):
+    def __init__(self) -> None:
         self.current_temp_dht = None
         self.current_hum_dht = None
         self.current_temp_1 = None
@@ -19,7 +19,7 @@ class Sensors:
         self.stop_flag = Event()
         self.initialize()
 
-    def initialize(self):
+    def initialize(self) -> None:
         # Initializes the DHT22 humidity and temperature sensor
         self.dht22_sensor = adafruit_dht.DHT22(board.D18)
         # Initializes the DS18B20 temperature probes

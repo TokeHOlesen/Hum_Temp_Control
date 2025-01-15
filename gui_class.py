@@ -4,7 +4,7 @@ from dialog_window_functions import askyesno_dialog
 
 
 class Gui:
-    def __init__(self, relays, sensors, user_input, time_controller):
+    def __init__(self, relays, sensors, user_input, time_controller) -> None:
         self.window = tk.Tk()
         self.window.title("Temperatur- og luftfugtighedsstyring")
         self.window.geometry("780x380")
@@ -192,7 +192,7 @@ class Gui:
         self.enter_button.grid(row=4, column=1, columnspan=2, padx=(18, 0), pady=2)
 
 
-    def update(self):
+    def update(self) -> None:
         if self.sensors.current_temp_dht is not None:
             self.actual_temperature_label.config(text=str(self.sensors.current_temp_dht) + "°C")
         if self.sensors.current_hum_dht is not None:
@@ -220,7 +220,7 @@ class Gui:
             self.target_humidity_textentry.config(state="normal")
             self.running_time_textentry.config(state="normal")
 
-    def update_time_display(self):
+    def update_time_display(self) -> None:
         # Updates elapsed time display
         elapsed_hours, elapsed_minutes, elapsed_seconds = self.time_controller.elapsed_h_m_s
         self.elapsed_time_label.config(text=f"{elapsed_hours:02}:{elapsed_minutes:02}:{elapsed_seconds:02}")
@@ -231,12 +231,12 @@ class Gui:
         else:
             self.remaining_time_label.config(text="Ubestemt")
         
-    def clear_text_entry_fields(self):
+    def clear_text_entry_fields(self) -> None:
         self.target_temperature_textentry.delete(0, tk.END)
         self.target_humidity_textentry.delete(0, tk.END)
         self.running_time_textentry.delete(0, tk.END)
         
-    def on_start_button_press(self):
+    def on_start_button_press(self) -> None:
         self.user_input.read(self.target_temperature_textentry.get(),
                         self.target_humidity_textentry.get(),
                         self.running_time_textentry.get())
@@ -247,11 +247,11 @@ class Gui:
             self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
             self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
         
-    def on_cancel_button_press(self):
+    def on_cancel_button_press(self) -> None:
         if askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde kørslen?"):
             self.cancel_process()
     
-    def cancel_process(self):
+    def cancel_process(self) -> None:
         self.relays.reset_all_channels()
         self.time_controller.reset()
         self.user_input.reset()
@@ -261,21 +261,21 @@ class Gui:
         self.remaining_time_label.config(text="N/A")
         self.target_temperature_textentry.focus_set()
 
-    def on_number_button_press(self, number):
+    def on_number_button_press(self, number) -> None:
         current_widget = self.window.focus_get()
         if isinstance(current_widget, tk.Entry):
             current_text = current_widget.get()
             current_widget.delete(0, tk.END)
             current_widget.insert(0, current_text + str(number))
 
-    def on_backspace_button_press(self):
+    def on_backspace_button_press(self) -> None:
         current_widget = self.window.focus_get()
         if isinstance(current_widget, tk.Entry):
             current_text = current_widget.get()
             current_widget.delete(0, tk.END)
             current_widget.insert(0, current_text[:-1])
 
-    def on_enter_button_press(self):
+    def on_enter_button_press(self) -> None:
         widgets = [
             self.target_temperature_textentry,
             self.target_humidity_textentry,

@@ -4,7 +4,7 @@ import constants
 
 
 class Relays:
-    def __init__(self):
+    def __init__(self) -> None:
         # Instatiates an LED object for each relay, corresponding to the respective GPIO pin.
         # Using LED objects allows to quickly set them to high or low voltage.
         self.ventilator_ch1 = LED(5)
@@ -22,7 +22,7 @@ class Relays:
         self.running_ch5.off()
         self.error_ch6.off()
     
-    def update_channels(self, sensor_data, user_input):
+    def update_channels(self, sensor_data, user_input) -> None:
         if self.running_ch5.is_lit:
             self.ventilator_ch1.on()
             

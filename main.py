@@ -15,7 +15,7 @@ def main():
     sensors.thread.start()
     # Updates the GUI for the first time - after initially called, the update_gui() function will call itself
     # periodically until the program is terminated
-    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensors, relays, time_controller, malfunctions))
+    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays())
     # Sets the initial GUI focus to temperature entry
     gui.target_temperature_textentry.focus_set()
     # Runs the cleanup function close_gui() when the window is closed
@@ -40,31 +40,34 @@ malfunctions = Malfunction_Watcher(relays, sensors, user_input, time_controller)
 gui = Gui(relays, sensors, user_input, time_controller, malfunctions)
 
 
-def update_gui_and_relays(sensor_data, relay_data, timer, malfunction_data):
+def update_gui_and_relays():
     """Updates the state of the relays and the GUI labels."""
-    relay_data.update_channels(sensor_data, user_input)
+    relays.update_channels(sensors, user_input)
     gui.update()
     
     # When running, updates the log file periodically
-    if relay_data.running_ch5.is_lit:
-        malfunction_data.catch_malfunctions()
+    if relays.running_ch5.is_lit:
+        malfunctions.catch_malfunctions()
+        sensors.check_if_target_values_reached(user_input)
+        if sensors.target_values_reached and not time_controller.timer_restarted:
+            time_controller.restart_timer()
         
-        if timer.log_condition:
+        if time_controller.log_condition:
             log_data(user_input.target_temp,
-                    sensor_data.current_temp_dht,
+                    sensors.current_temp_dht,
                     user_input.target_humidity,
-                    sensor_data.current_hum_dht,
-                    int(relay_data.ventilator_ch1.is_lit),
-                    int(relay_data.varmer_ch2.is_lit),
-                    int(relay_data.affugter_ch3.is_lit),
-                    int(relay_data.damp_ch4.is_lit),
-                    int(relay_data.error_ch6.is_lit))
+                    sensors.current_hum_dht,
+                    int(relays.ventilator_ch1.is_lit),
+                    int(relays.varmer_ch2.is_lit),
+                    int(relays.affugter_ch3.is_lit),
+                    int(relays.damp_ch4.is_lit),
+                    int(relays.error_ch6.is_lit))
         
-        if timer.stop_condition:
+        if time_controller.stop_condition:
             gui.cancel_process()
 
     # Schedule the next update
-    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, relay_data, timer, malfunction_data))
+    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays())
 
 
 def close_gui() -> None:

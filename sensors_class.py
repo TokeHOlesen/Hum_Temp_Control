@@ -17,6 +17,7 @@ class Sensors:
         self.thread = Thread(target=self.read_sensors_in_thread)
         # Sensor readings will continue being taken for as long as this flag is not set
         self.stop_flag = Event()
+        self.target_values_reached = False
         self.initialize()
 
     def initialize(self) -> None:
@@ -67,3 +68,11 @@ class Sensors:
 
             # Time between each reading (in seconds)
             sleep(constants.SENSOR_PROBING_INTERVAL)
+
+    def check_if_target_values_reached(self, user_input):
+        if abs(self.current_temp_dht - user_input.target_temp) <= constants.HUMIDITY_CONTROL_THRESHOLD:
+            if abs(self.current_hum_dht - user_input.target_humidity) <= constants.HUMIDITY_TOLERANCE:
+                self.target_values_reached = True
+    
+    def reset(self):
+        self.target_values_reached = False

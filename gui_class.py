@@ -207,7 +207,10 @@ class Gui:
             if self.relays.error_ch6.is_lit:
                  self.status_label.config(text="Fejl.")
             else:
-                 self.status_label.config(text="Kører.")
+                if self.sensors.target_values_reached:
+                    self.status_label.config(text="Kører.")
+                else:
+                    self.status_label.config(text="Varmer op.")
         else:
              self.status_label.config(text="Stoppet.")
         self.error_label.config(text=self.malfunctions.message, fg="Red") if self.relays.error_ch6.is_lit else self.error_label.config(text="Ingen fejl.", fg="Green")
@@ -232,11 +235,14 @@ class Gui:
         elapsed_hours, elapsed_minutes, elapsed_seconds = self.time_controller.elapsed_h_m_s
         self.elapsed_time_label.config(text=f"{elapsed_hours:02}:{elapsed_minutes:02}:{elapsed_seconds:02}")
         # Updates remaining time display, if target set; else "Ubestemt"
-        if self.time_controller.seconds_remaining > 0:
+        if self.time_controller.seconds_remaining > 0 and self.sensors.target_values_reached:
             remaining_hours, remaining_minutes, remaining_seconds = self.time_controller.remaining_h_m_s
             self.remaining_time_label.config(text=f"{remaining_hours:02}:{remaining_minutes:02}:{remaining_seconds:02}")
         else:
-            self.remaining_time_label.config(text="Ubestemt")
+            if self.sensors.target_values_reached:
+                self.remaining_time_label.config(text="Ubestemt")
+            else:
+                self.remaining_time_label.config(text="Ukendt")
         
     def clear_text_entry_fields(self) -> None:
         self.target_temperature_textentry.delete(0, tk.END)
@@ -262,6 +268,7 @@ class Gui:
         self.relays.reset_all_channels()
         self.time_controller.reset()
         self.user_input.reset()
+        self.sensors.reset()
         self.target_temperature_label.config(text="N/A")
         self.target_humidity_label.config(text="N/A")
         self.elapsed_time_label.config(text="N/A")

@@ -6,10 +6,15 @@ class TimeController:
     def __init__(self, user_input) -> None:
         self.user_input = user_input
         self.log_written = False
+        self.timer_restarted = False
         self.reset()
     
     def start_timer(self) -> None:
         self.start = perf_counter()
+        
+    def restart_timer(self) -> None:
+        self.start = perf_counter()
+        self.timer_restarted = True
     
     @property
     def seconds_remaining(self) -> int:
@@ -51,3 +56,4 @@ class TimeController:
         self.start = None
         self.elapsed = None
         self.remaining = None
+        self.timer_restarted = False

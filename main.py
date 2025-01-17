@@ -6,6 +6,7 @@ from time_controller_class import TimeController
 from relays_class import Relays
 from sensors_class import Sensors
 from gui_class import Gui
+from malfunction_class import Malfunction_Watcher
 from data_logging_function import log_data
 from dialog_window_functions import askyesno_dialog, info_dialog
 
@@ -14,7 +15,7 @@ def main():
     sensors.thread.start()
     # Updates the GUI for the first time - after initially called, the update_gui() function will call itself
     # periodically until the program is terminated
-    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensors, relays, time_controller))
+    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensors, relays, time_controller, malfunctions))
     # Sets the initial GUI focus to temperature entry
     gui.target_temperature_textentry.focus_set()
     # Runs the cleanup function close_gui() when the window is closed
@@ -33,17 +34,21 @@ sensors = Sensors()
 user_input = UserInput()
 # Provides a clock and associated events
 time_controller = TimeController(user_input)
+# Checks for and reports malfunctions
+malfunctions = Malfunction_Watcher(relays, sensors, user_input, time_controller)
 # User interface
-gui = Gui(relays, sensors, user_input, time_controller)
+gui = Gui(relays, sensors, user_input, time_controller, malfunctions)
 
 
-def update_gui_and_relays(sensor_data, relay_data, timer):
+def update_gui_and_relays(sensor_data, relay_data, timer, malfunction_data):
     """Updates the state of the relays and the GUI labels."""
     relay_data.update_channels(sensor_data, user_input)
     gui.update()
     
     # When running, updates the log file periodically
     if relay_data.running_ch5.is_lit:
+        malfunction_data.catch_malfunctions()
+        
         if timer.log_condition:
             log_data(user_input.target_temp,
                     sensor_data.current_temp_dht,
@@ -59,7 +64,7 @@ def update_gui_and_relays(sensor_data, relay_data, timer):
             gui.cancel_process()
 
     # Schedule the next update
-    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, relay_data, timer))
+    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays(sensor_data, relay_data, timer, malfunction_data))
 
 
 def close_gui() -> None:

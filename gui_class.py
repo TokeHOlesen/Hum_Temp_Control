@@ -4,7 +4,7 @@ from dialog_window_functions import askyesno_dialog
 
 
 class Gui:
-    def __init__(self, relays, sensors, user_input, time_controller) -> None:
+    def __init__(self, relays, sensors, user_input, time_controller, malfunctions) -> None:
         self.window = tk.Tk()
         self.window.title("Temperatur- og luftfugtighedsstyring")
         self.window.geometry("780x380")
@@ -13,6 +13,7 @@ class Gui:
         self.sensors = sensors
         self.user_input = user_input
         self.time_controller = time_controller
+        self.malfunctions = malfunctions
 
         # Data entry frame
 
@@ -202,8 +203,14 @@ class Gui:
         self.varmer_label.config(text="ON", fg="Green") if self.relays.varmer_ch2.is_lit else self.varmer_label.config(text="OFF", fg="Red")
         self.affugter_label.config(text="ON", fg="Green") if self.relays.affugter_ch3.is_lit else self.affugter_label.config(text="OFF", fg="Red")
         self.damp_label.config(text="ON", fg="Green") if self.relays.damp_ch4.is_lit else self.damp_label.config(text="OFF", fg="Red")
-        self.status_label.config(text="Kører.") if self.relays.running_ch5.is_lit else self.status_label.config(text="Stoppet.")
-        self.error_label.config(text="Fejl", fg="Red") if self.relays.error_ch6.is_lit else self.error_label.config(text="Ingen fejl.", fg="Green")
+        if self.relays.running_ch5.is_lit:
+            if self.relays.error_ch6.is_lit:
+                 self.status_label.config(text="Fejl.")
+            else:
+                 self.status_label.config(text="Kører.")
+        else:
+             self.status_label.config(text="Stoppet.")
+        self.error_label.config(text=self.malfunctions.message, fg="Red") if self.relays.error_ch6.is_lit else self.error_label.config(text="Ingen fejl.", fg="Green")
         if self.time_controller.start is not None:
             self.update_time_display()
         

@@ -20,3 +20,5 @@ MIN_HUMIDITY = 0
 MAX_HUMIDITY = 100
 # How long the process can be scheduled for, in minutes
 MAX_TIME = 720
+# How long to wait until an error is raised if the temperature has no reached target, in minutes 
+HEATER_WARMUP_TIME = 1

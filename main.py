@@ -15,7 +15,7 @@ def main():
     sensors.thread.start()
     # Updates the GUI for the first time - after initially called, the update_gui() function will call itself
     # periodically until the program is terminated
-    gui.window.after(constants.UPDATE_FREQUENCY, lambda: update_gui_and_relays())
+    gui.window.after(constants.UPDATE_FREQUENCY, update_gui_and_relays)
     # Sets the initial GUI focus to temperature entry
     gui.target_temperature_textentry.focus_set()
     # Runs the cleanup function close_gui() when the window is closed
@@ -61,7 +61,8 @@ def update_gui_and_relays():
                     int(relays.varmer_ch2.is_lit),
                     int(relays.affugter_ch3.is_lit),
                     int(relays.damp_ch4.is_lit),
-                    int(relays.error_ch6.is_lit))
+                    int(relays.error_ch6.is_lit),
+                    int(sensors.target_values_reached))
         
         if time_controller.stop_condition:
             gui.cancel_process()

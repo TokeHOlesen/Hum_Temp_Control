@@ -4,11 +4,11 @@ SENSOR_PROBING_INTERVAL = 2
 UPDATE_FREQUENCY = 500
 # How often to log data, in seconds
 LOGGING_FREQUENCY = 120
-# How many degrees the temperature has to differ from target before the heater is turned on or off
+# How many degrees the temperature has to stray from target before the heater is turned on or off
 TEMPERATURE_TOLERANCE = 2
-# How much the humidity has to differ from target before the (de)humidifier is turned on or off
+# How much the humidity has to stray from target before the (de)humidifier is turned on or off
 HUMIDITY_TOLERANCE = 2
-# How much the temperature can differ from target before humidifier and dehumidifier can be turned on or off
+# How much the temperature can stray from target before humidifier and dehumidifier can be turned on or off
 HUMIDITY_CONTROL_THRESHOLD = 10
 # Lowest allowed temperature
 MIN_TEMP = 0
@@ -20,5 +20,9 @@ MIN_HUMIDITY = 0
 MAX_HUMIDITY = 100
 # How long the process can be scheduled for, in minutes
 MAX_TIME = 720
-# How long to wait until an error is raised if the temperature has no reached target, in minutes 
+# How long to wait until an error is raised if the temperature has not reached target, in minutes 
 HEATER_WARMUP_TIME = 1
+# How long to wait until an error is raised if the humidity is below target, in minutes
+HUMIDIFIER_WARMUP_TIME = 1
+# How long to wait until an error is raised if the humidity is above target, in minutes
+DEHUMIDIFIER_WARMUP_TIME = 1

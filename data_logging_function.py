@@ -10,7 +10,8 @@ def log_data(target_temp,
             varmer,
             affugter,
             dampgenerator,
-            fejl):
+            fejl,
+            opvarmet):
     
     field_names = [
         "tidspunkt",
@@ -22,14 +23,15 @@ def log_data(target_temp,
         "varmer",
         "affugter",
         "dampgenerator",
-        "fejl"
+        "fejl",
+        "opvarmet"
     ]
     
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
     
     current_date = date.today()
-    filename = f"./Logfiler/{current_date}"
+    filename = f"./Logfiler/{current_date}.csv"
     day_log_exists = os.path.exists(filename)
     
     with open(filename, mode='a' if day_log_exists else 'w', newline='') as log_file:
@@ -48,5 +50,6 @@ def log_data(target_temp,
             "varmer": varmer,
             "affugter": affugter,
             "dampgenerator": dampgenerator,
-            "fejl": fejl
+            "fejl": fejl,
+            "opvarmet": opvarmet
         })

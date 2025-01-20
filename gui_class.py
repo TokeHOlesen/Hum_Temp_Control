@@ -146,7 +146,7 @@ class Gui:
         self.status_label.grid(row=0, column=1, sticky="w")
 
         # Error message, if any
-        self.error_label = tk.Label(self.status_frame, fg="red", text="This is a sample error message")
+        self.error_label = tk.Label(self.status_frame)
         self.error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(10, 0))
         
         # Numpad frame

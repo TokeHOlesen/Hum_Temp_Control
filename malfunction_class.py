@@ -11,42 +11,50 @@ class Malfunction_Watcher:
         self.sensors = sensors
         self.user_input = user_input
         self.time_controller = time_controller
-        self.malfunction_on = False
+        self.malfunction_found = False
         self.message = ""
-        self.heater_malfunction = False
-        self.humidifier_malfunction = False
-        self.dehumidifier_malfunction = False
+        self.malfunctions = {
+            "Heater": False,
+            "Humidifier": False,
+            "Dehumidifier": False
+        }
+        self.malfunction_messages = {
+            "Heater": "Temperaturen stiger ikke - tjek varmeren.",
+            "Humidifier": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
+            "Dehumidifier": "Luftfugtigheden falder ikke - tjek affugteren."
+        }
     
     def catch_heater_malfunction(self):
         if self.time_controller.seconds_elapsed >= (constants.HEATER_WARMUP_TIME * 60):
             if self.sensors.current_temp_dht < self.user_input.target_temp - constants.HUMIDITY_CONTROL_THRESHOLD:
-                self.heater_malfunction = True
+                self.malfunctions["Heater"] = True
                 
     def catch_humidifier_malfunction(self):
         if self.time_controller.temp_reached_timestamp:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.HUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht < self.user_input.target_humidity - constants.HUMIDITY_TOLERANCE:
-                    self.humidifier_malfunction = True
+                    self.malfunctions["Humidifier"] = True
         
     def catch_dehumidifer_malfunction(self):
         if self.time_controller.temp_reached_timestamp:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.DEHUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht > self.user_input.target_humidity + constants.HUMIDITY_TOLERANCE:
-                    self.dehumidifier_malfunction = True
+                    self.malfunctions["Dehumidifier"] = True
     
     def set_malfunctioned_flag(self):
-        self.malfunction_on = self.heater_malfunction or self.humidifier_malfunction or self.dehumidifier_malfunction
+        for item in self.malfunctions:
+            if self.malfunctions[item]:
+                self.malfunction_found = True
+                break
         
     def set_malfunction_message(self):
-        if self.heater_malfunction:
-            self.message = "Temperaturen stiger ikke - tjek varmeren."
-        if self.humidifier_malfunction:
-            self.message = "Luftfugtigheden stiger ikke - tjek dampgeneratoren."
-        if self.dehumidifier_malfunction:
-            self.message = "Luftfugtigheden falder ikke - tjek affugteren."
+        for item in self.malfunctions:
+            if self.malfunctions[item]:
+                self.message = self.malfunction_messages[item]
+                break
     
     def activate_error_relay(self):
-        if self.malfunction_on:
+        if self.malfunction_found:
             self.relays.error_ch6.on()
         else:
             self.relays.error_ch6.off()

@@ -7,6 +7,11 @@ def askyesno_dialog(title, message) -> bool:
     dialog.geometry("520x130")
     dialog.resizable(False, False)
     dialog_font = ("TkDefaultFont", 16)
+    
+    root = tk._default_root
+    if root is not None:
+        dialog.transient(root)
+        dialog.lift(root) 
 
     label = tk.Label(dialog, text=message, font=dialog_font, pady=10,)
     label.pack()
@@ -36,6 +41,11 @@ def info_dialog(title, message) -> None:
     dialog.geometry("520x130")
     dialog.resizable(False, False)
     dialog_font = ("TkDefaultFont", 16)
+    
+    root = tk._default_root
+    if root is not None:
+        dialog.transient(root)
+        dialog.lift(root) 
     
     label = tk.Label(dialog, text=message, font=dialog_font, pady=10,)
     label.pack()

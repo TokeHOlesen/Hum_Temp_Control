@@ -269,6 +269,7 @@ class Gui:
         self.time_controller.reset()
         self.user_input.reset()
         self.sensors.reset()
+        self.malfunctions.reset()
         self.target_temperature_label.config(text="N/A")
         self.target_humidity_label.config(text="N/A")
         self.elapsed_time_label.config(text="N/A")

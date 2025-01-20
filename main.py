@@ -42,6 +42,7 @@ gui = Gui(relays, sensors, user_input, time_controller, malfunctions)
 
 def update_gui_and_relays():
     """Updates the state of the relays and the GUI labels."""
+    malfunctions.catch_malfunctions()
     relays.update_channels(sensors, user_input)
     gui.update()
     
@@ -52,8 +53,6 @@ def update_gui_and_relays():
             time_controller.set_temp_reached_timestamp()
         if sensors.target_values_reached:
             time_controller.restart_timer()
-        
-        malfunctions.catch_malfunctions()
         
         if time_controller.log_condition:
             log_data(user_input.target_temp,

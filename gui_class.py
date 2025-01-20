@@ -93,7 +93,8 @@ class Gui:
         self.damp_label.grid(row=3, column=3, sticky="w", padx=(0, 5))
 
         # Time elapsed and remaining
-        tk.Label(self.data_display_frame, text="Tid i drift:").grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
+        self.running_time_label = tk.Label(self.data_display_frame, text="Tid i drift:")
+        self.running_time_label.grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
         self.elapsed_time_label = tk.Label(self.data_display_frame, text="N/A", width=8)
         self.elapsed_time_label.grid(row=4, column=1, sticky="w", pady=(10, 5))
 
@@ -236,6 +237,10 @@ class Gui:
 
     def update_time_display(self) -> None:
         # Updates elapsed time display
+        if self.sensors.target_values_reached:
+            self.running_time_label.config(text="Tid i drift:")
+        else:
+            self.running_time_label.config(text="Forløbet opstartstid:")
         elapsed_hours, elapsed_minutes, elapsed_seconds = self.time_controller.elapsed_h_m_s
         self.elapsed_time_label.config(text=f"{elapsed_hours:02}:{elapsed_minutes:02}:{elapsed_seconds:02}")
         # Updates remaining time display, if target set; else "Ubestemt"

@@ -23,19 +23,32 @@ class Malfunction_Watcher:
             "Humidifier": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
             "Dehumidifier": "Luftfugtigheden falder ikke - tjek affugteren."
         }
+        self.malfunction_catchers = {
+            "Heater": self.catch_heater_malfunction,
+            "Humidifier": self.catch_humidifier_malfunction,
+            "Dehumidifier": self.catch_dehumidifier_malfunction
+        }
     
+    # If the target temperature has not been reached after the time specified in HEATER_WARMUP_TIME
+    # raises possible malfunction
     def catch_heater_malfunction(self):
         if self.time_controller.seconds_elapsed >= (constants.HEATER_WARMUP_TIME * 60):
             if self.sensors.current_temp_dht < self.user_input.target_temp - constants.HUMIDITY_CONTROL_THRESHOLD:
                 self.malfunctions["Heater"] = True
-                
+    
+    # If the target temperature has been reached but the humidity has not gone up and and is still below target after
+    # the time specified in HUMIDIFIER_WARMUP_TIME (counting from the moment target temperature has been reached),
+    # raises possible malfunction
     def catch_humidifier_malfunction(self):
         if self.time_controller.temp_reached_timestamp:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.HUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht < self.user_input.target_humidity - constants.HUMIDITY_TOLERANCE:
                     self.malfunctions["Humidifier"] = True
-        
-    def catch_dehumidifer_malfunction(self):
+
+    # If the target temperature has been reached but the humidity has not gone down and and is still above target after
+    # the time specified in DEHUMIDIFIER_WARMUP_TIME (counting from the moment target temperature has been reached),
+    # raises possible malfunction
+    def catch_dehumidifier_malfunction(self):
         if self.time_controller.temp_reached_timestamp:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.DEHUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht > self.user_input.target_humidity + constants.HUMIDITY_TOLERANCE:
@@ -60,9 +73,8 @@ class Malfunction_Watcher:
             self.relays.error_ch6.off()
     
     def catch_malfunctions(self):
-        self.catch_heater_malfunction()
-        self.catch_humidifier_malfunction()
-        self.catch_dehumidifer_malfunction()
+        for item in self.malfunction_catchers:
+            self.malfunction_catchers[item]()
         self.set_malfunctioned_flag()
         self.set_malfunction_message()
         self.activate_error_relay() 

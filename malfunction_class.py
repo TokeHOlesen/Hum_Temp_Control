@@ -44,7 +44,7 @@ class Malfunction_Watcher:
     # If the target temperature has not been reached after the time specified in HEATER_WARMUP_TIME
     # raises possible malfunction
     def catch_heater_malfunction(self):
-        if self.relays.running_ch5.is_lit and self.time_controller.seconds_elapsed >= (constants.HEATER_WARMUP_TIME * 60):
+        if self.relays.running_ch5.is_lit and self.time_controller.seconds_elapsed >= (constants.HEATER_WARMUP_TIME * 60) and not self.sensors.target_temperature_reached:
             if self.sensors.current_temp_dht < self.user_input.target_temp - constants.HUMIDITY_CONTROL_THRESHOLD:
                 self.malfunctions["Heater"] = True
             else:
@@ -54,7 +54,7 @@ class Malfunction_Watcher:
     # the time specified in HUMIDIFIER_WARMUP_TIME (counting from the moment target temperature has been reached),
     # raises possible malfunction
     def catch_humidifier_malfunction(self):
-        if self.relays.running_ch5.is_lit and self.time_controller.temp_reached_timestamp:
+        if self.relays.running_ch5.is_lit and self.sensors.target_temperature_reached and not self.sensors.target_values_reached:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.HUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht < self.user_input.target_humidity - constants.HUMIDITY_TOLERANCE:
                     self.malfunctions["Humidifier"] = True
@@ -65,7 +65,7 @@ class Malfunction_Watcher:
     # the time specified in DEHUMIDIFIER_WARMUP_TIME (counting from the moment target temperature has been reached),
     # raises possible malfunction
     def catch_dehumidifier_malfunction(self):
-        if self.relays.running_ch5.is_lit and self.time_controller.temp_reached_timestamp:
+        if self.relays.running_ch5.is_lit and self.sensors.target_temperature_reached and not self.sensors.target_values_reached:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.DEHUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht > self.user_input.target_humidity + constants.HUMIDITY_TOLERANCE:
                     self.malfunctions["Dehumidifier"] = True

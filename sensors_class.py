@@ -27,8 +27,11 @@ class Sensors:
         # Initializes the DHT22 humidity and temperature sensor
         self.dht22_sensor = adafruit_dht.DHT22(board.D18)
         # Initializes the DS18B20 temperature probes
-        os.system('modprobe w1-gpio')
-        os.system('modprobe w1-therm')
+        try:
+            os.system('modprobe w1-gpio')
+            os.system('modprobe w1-therm')
+        except OSError as e:
+            print("The DS18B20 probes cannot be initialized: " + str(e))
         self.base_dir = '/sys/bus/w1/devices/'
         self.temp_sensor_1_file = self.base_dir + '28-0000006a045f/w1_slave'
         self.temp_sensor_2_file = self.base_dir + '28-00000085eccb/w1_slave'

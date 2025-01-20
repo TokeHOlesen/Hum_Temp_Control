@@ -203,14 +203,18 @@ class Gui:
         self.varmer_label.config(text="ON", fg="Green") if self.relays.varmer_ch2.is_lit else self.varmer_label.config(text="OFF", fg="Red")
         self.affugter_label.config(text="ON", fg="Green") if self.relays.affugter_ch3.is_lit else self.affugter_label.config(text="OFF", fg="Red")
         self.damp_label.config(text="ON", fg="Green") if self.relays.damp_ch4.is_lit else self.damp_label.config(text="OFF", fg="Red")
-        if self.relays.running_ch5.is_lit:
-            if self.relays.error_ch6.is_lit:
-                 self.status_label.config(text="Fejl.")
+        if self.relays.error_ch6.is_lit and not self.relays.running_ch5.is_lit:
+            self.status_label.config(text="Fejl.")
+        elif self.relays.error_ch6.is_lit and self.relays.running_ch5.is_lit:
+            if self.sensors.target_values_reached:
+                    self.status_label.config(text="Kører, fejl.")
             else:
+                self.status_label.config(text="Starter op, fejl.")
+        elif self.relays.running_ch5.is_lit:
                 if self.sensors.target_values_reached:
                     self.status_label.config(text="Kører.")
                 else:
-                    self.status_label.config(text="Varmer op.")
+                    self.status_label.config(text="Starter op.")
         else:
              self.status_label.config(text="Stoppet.")
         self.error_label.config(text=self.malfunctions.message, fg="Red") if self.relays.error_ch6.is_lit else self.error_label.config(text="Ingen fejl.", fg="Green")

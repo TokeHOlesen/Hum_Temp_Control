@@ -6,6 +6,7 @@ class TimeController:
     def __init__(self, user_input) -> None:
         self.user_input = user_input
         self.log_written = False
+        self.temp_reached_timestamp = None
         self.timer_restarted = False
         self.reset()
     
@@ -13,8 +14,13 @@ class TimeController:
         self.start = perf_counter()
         
     def restart_timer(self) -> None:
-        self.start = perf_counter()
-        self.timer_restarted = True
+        if not self.timer_restarted:
+            self.start = perf_counter()
+            self.timer_restarted = True
+    
+    def set_temp_reached_timestamp(self) -> None:
+        if self.temp_reached_timestamp is None:
+            self.temp_reached_timestamp = perf_counter()
     
     @property
     def seconds_remaining(self) -> int:
@@ -23,6 +29,10 @@ class TimeController:
     @property
     def seconds_elapsed(self) -> int:
         return int(perf_counter() - self.start)
+    
+    @property
+    def seconds_elapsed_since_temp_reached(self) -> int:
+        return int(perf_counter() - self.temp_reached_timestamp)
     
     @property
     def elapsed_h_m_s(self) -> tuple[int, int, int]:
@@ -53,7 +63,9 @@ class TimeController:
         return False
     
     def reset(self) -> None:
+        self.temp_reached_timestamp = None
         self.start = None
         self.elapsed = None
         self.remaining = None
         self.timer_restarted = False
+        

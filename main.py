@@ -47,10 +47,13 @@ def update_gui_and_relays():
     
     # When running, updates the log file periodically
     if relays.running_ch5.is_lit:
-        malfunctions.catch_malfunctions()
         sensors.check_if_target_values_reached(user_input)
-        if sensors.target_values_reached and not time_controller.timer_restarted:
+        if sensors.target_temperature_reached:
+            time_controller.set_temp_reached_timestamp()
+        if sensors.target_values_reached:
             time_controller.restart_timer()
+        
+        malfunctions.catch_malfunctions()
         
         if time_controller.log_condition:
             log_data(user_input.target_temp,

@@ -34,6 +34,7 @@ class Malfunction_Watcher:
     
     # Raises a malfunction if a connection with the DHT22 sensor cannot be established.
     # Currently only outputs a message to terminal if any of the DS18B20 sensors are not working
+    # TODO: turn off completely in case of this error
     def catch_sensor_malfunction(self):
         if self.sensors.sensor_error:
             self.malfunctions["Sensor"] = True

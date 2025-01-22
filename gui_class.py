@@ -7,7 +7,7 @@ class Gui:
     def __init__(self, relays, sensors, user_input, time_controller, malfunctions) -> None:
         self.window = tk.Tk()
         self.window.title("Temperatur- og luftfugtighedsstyring")
-        self.window.geometry("780x380")
+        self.window.geometry("800x454")
         
         self.relays = relays
         self.sensors = sensors
@@ -18,7 +18,7 @@ class Gui:
         # Data entry frame
 
         self.target_entry_frame = tk.Frame(self.window)
-        self.target_entry_frame.grid(row=0, column=0, padx=70, pady=(10, 5), sticky="nw")
+        self.target_entry_frame.grid(row=0, column=0, padx=70, pady=(15, 5), sticky="nw")
         
         self.data_entry_font = ("TkDefaultFont", 13)
 
@@ -53,54 +53,66 @@ class Gui:
 
         # Data display frame
         
+        self.data_display_font = ("TkDefaultFont", 10)
+        
         self.data_display_frame = tk.Frame(self.window, borderwidth=1, relief="sunken")
         self.data_display_frame.grid(row=1, column=0, padx=(15, 10), pady=10, sticky="nw")
 
         # Temperature
-        tk.Label(self.data_display_frame, text="Ønsket temperatur:").grid(row=0, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
-        self.target_temperature_label = tk.Label(self.data_display_frame, text="N/A", width=8)
+        tk.Label(self.data_display_frame, text="Ønsket temperatur:", font=self.data_display_font).grid(row=0, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
+        self.target_temperature_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
         self.target_temperature_label.grid(row=0, column=1, sticky="w", padx=(0, 20), pady=(5, 0))
 
-        tk.Label(self.data_display_frame, text="Faktisk temperatur:").grid(row=0, column=2, sticky="w", pady=(5, 0))
-        self.actual_temperature_label = tk.Label(self.data_display_frame, text="N/A", width=8)
+        tk.Label(self.data_display_frame, text="Faktisk temperatur:", font=self.data_display_font).grid(row=0, column=2, sticky="w", pady=(5, 0))
+        self.actual_temperature_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
         self.actual_temperature_label.grid(row=0, column=3, sticky="w", padx=(0, 5),  pady=(5, 0))
 
         # Humidity
-        tk.Label(self.data_display_frame, text="Ønsket luftfugtighed:").grid(row=1, column=0, sticky="w", padx=(5, 0))
-        self.target_humidity_label = tk.Label(self.data_display_frame, text="N/A", width=8)
+        tk.Label(self.data_display_frame, text="Ønsket luftfugtighed:", font=self.data_display_font).grid(row=1, column=0, sticky="w", padx=(5, 0))
+        self.target_humidity_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
         self.target_humidity_label.grid(row=1, column=1, sticky="w", padx=(0, 20))
 
-        tk.Label(self.data_display_frame, text="Faktisk luftfugtighed:").grid(row=1, column=2, sticky="w")
-        self.actual_humidity_label = tk.Label(self.data_display_frame, text="N/A", width=8)
+        tk.Label(self.data_display_frame, text="Faktisk luftfugtighed:", font=self.data_display_font).grid(row=1, column=2, sticky="w")
+        self.actual_humidity_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
         self.actual_humidity_label.grid(row=1, column=3, sticky="w", padx=(0, 5))
+        
+        # DS18B20 temperature probes
+        
+        tk.Label(self.data_display_frame, text="Temp 1:", font=self.data_display_font).grid(row=2, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
+        self.temp_probe_1_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.temp_probe_1_label.grid(row=2, column=1, sticky="w", padx=(0, 20), pady=(5, 0))
+
+        tk.Label(self.data_display_frame, text="Temp 2:", font=self.data_display_font).grid(row=2, column=2, sticky="w", pady=(5, 0))
+        self.temp_probe_2_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.temp_probe_2_label.grid(row=2, column=3, sticky="w", padx=(0, 5),  pady=(5, 0))
 
         # Fan and heater
-        tk.Label(self.data_display_frame, text="Ventilator:").grid(row=2, column=0, sticky="w", padx=(5, 0), pady=(10, 0))
-        self.ventilator_label = tk.Label(self.data_display_frame, text="N/A", width=8)
-        self.ventilator_label.grid(row=2, column=1, sticky="w", padx=(0, 20), pady=(10, 0))
+        tk.Label(self.data_display_frame, text="Ventilator:", font=self.data_display_font).grid(row=3, column=0, sticky="w", padx=(5, 0), pady=(10, 0))
+        self.ventilator_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.ventilator_label.grid(row=3, column=1, sticky="w", padx=(0, 20), pady=(10, 0))
 
-        tk.Label(self.data_display_frame, text="Varmer:").grid(row=2, column=2, sticky="w", pady=(10, 0))
-        self.varmer_label = tk.Label(self.data_display_frame, text="N/A", width=8)
-        self.varmer_label.grid(row=2, column=3, sticky="w", padx=(0, 5), pady=(10, 0))
+        tk.Label(self.data_display_frame, text="Varmer:", font=self.data_display_font).grid(row=3, column=2, sticky="w", pady=(10, 0))
+        self.varmer_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.varmer_label.grid(row=3, column=3, sticky="w", padx=(0, 5), pady=(10, 0))
 
         # Dehumidifier and steam generator
-        tk.Label(self.data_display_frame, text="Affugter:").grid(row=3, column=0, sticky="w", padx=(5, 0))
-        self.affugter_label = tk.Label(self.data_display_frame, text="N/A", width=8)
-        self.affugter_label.grid(row=3, column=1, sticky="w", padx=(0, 20))
+        tk.Label(self.data_display_frame, text="Affugter:", font=self.data_display_font).grid(row=4, column=0, sticky="w", padx=(5, 0))
+        self.affugter_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.affugter_label.grid(row=4, column=1, sticky="w", padx=(0, 20))
 
-        tk.Label(self.data_display_frame, text="Damp Generator:").grid(row=3, column=2, sticky="w")
-        self.damp_label = tk.Label(self.data_display_frame, text="N/A", width=8)
-        self.damp_label.grid(row=3, column=3, sticky="w", padx=(0, 5))
+        tk.Label(self.data_display_frame, text="Damp Generator:", font=self.data_display_font).grid(row=4, column=2, sticky="w")
+        self.damp_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.damp_label.grid(row=4, column=3, sticky="w", padx=(0, 5))
 
         # Time elapsed and remaining
-        self.running_time_label = tk.Label(self.data_display_frame, text="Tid i drift:")
-        self.running_time_label.grid(row=4, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
-        self.elapsed_time_label = tk.Label(self.data_display_frame, text="N/A", width=8)
-        self.elapsed_time_label.grid(row=4, column=1, sticky="w", pady=(10, 5))
+        self.running_time_label = tk.Label(self.data_display_frame, text="Tid i drift:", font=self.data_display_font)
+        self.running_time_label.grid(row=5, column=0, sticky="w", padx=(5, 0), pady=(10, 5))
+        self.elapsed_time_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.elapsed_time_label.grid(row=5, column=1, sticky="w", pady=(10, 5))
 
-        tk.Label(self.data_display_frame, text="Tid tilbage:").grid(row=4, column=2, sticky="w", pady=(10, 5))
-        self.remaining_time_label = tk.Label(self.data_display_frame, text="N/A", width=8)
-        self.remaining_time_label.grid(row=4, column=3, sticky="w", pady=(10, 5))
+        tk.Label(self.data_display_frame, text="Tid tilbage:", font=self.data_display_font).grid(row=5, column=2, sticky="w", pady=(10, 5))
+        self.remaining_time_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
+        self.remaining_time_label.grid(row=5, column=3, sticky="w", pady=(10, 5))
 
         # Button frame
 
@@ -137,23 +149,25 @@ class Gui:
         # Status frame
 
         self.status_frame = tk.Frame(self.window)
-        self.status_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nw")
+        self.status_frame.grid(row=3, column=0, padx=10, pady=15, sticky="nw")
         self.status_frame.grid_columnconfigure(0, weight=0)
         self.status_frame.grid_columnconfigure(1, weight=1)
+        
+        self.status_font = ("TkDefaultFont", 12)
 
         # Current operating status
-        tk.Label(self.status_frame, text="Status:").grid(row=0, column=0, sticky="w")
-        self.status_label = tk.Label(self.status_frame, text="Stoppet")
+        tk.Label(self.status_frame, text="Status:", font=self.status_font).grid(row=0, column=0, sticky="w")
+        self.status_label = tk.Label(self.status_frame, text="Stoppet", font=self.status_font)
         self.status_label.grid(row=0, column=1, sticky="w")
 
         # Error message, if any
-        self.error_label = tk.Label(self.status_frame)
+        self.error_label = tk.Label(self.status_frame, font=self.status_font)
         self.error_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=(0, 20), pady=(10, 0))
         
         # Numpad frame
         
         self.numpad_frame = tk.Frame(self.window)
-        self.numpad_frame.grid(row=0, column=1, rowspan=4, padx=5, pady=(10, 0), sticky="n")
+        self.numpad_frame.grid(row=0, column=1, rowspan=4, padx=(16, 5), pady=(15, 0), sticky="n")
 
         # Button font settings
         self.numpad_button_font = ("TkDefaultFont", 16)
@@ -199,6 +213,10 @@ class Gui:
             self.actual_temperature_label.config(text=str(self.sensors.current_temp_dht) + "°C")
         if self.sensors.current_hum_dht is not None:
             self.actual_humidity_label.config(text=str(self.sensors.current_hum_dht) + "%")
+        if self.sensors.current_temp_1 is not None:
+            self.temp_probe_1_label.config(text=str(self.sensors.current_temp_1) + "°C")
+        if self.sensors.current_temp_2 is not None:
+            self.temp_probe_2_label.config(text=str(self.sensors.current_temp_2) + "°C")
             
         self.ventilator_label.config(text="ON", fg="Green") if self.relays.ventilator_ch1.is_lit else self.ventilator_label.config(text="OFF", fg="Red")
         self.varmer_label.config(text="ON", fg="Green") if self.relays.varmer_ch2.is_lit else self.varmer_label.config(text="OFF", fg="Red")

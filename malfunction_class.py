@@ -14,7 +14,8 @@ class Malfunction_Watcher:
         self.malfunction_found = False
         self.message = ""
         self.malfunctions = {
-            "Sensor": False,
+            "DHT22 sensor": False,
+            "DS18B20 sensor": False,
             "Heater warmup": False,
             "Humidifier warmup": False,
             "Dehumidifier warmup": False,
@@ -24,7 +25,8 @@ class Malfunction_Watcher:
             "Humidity too high": False
         }
         self.malfunction_messages = {
-            "Sensor": "",
+            "DHT22 sensor": "DHT22 blev ikke fundet, tjek forbindelsen.",
+            "DS18B20 sensor": "DS18B20 temperatursensor fejl, tjek forbindelsen.",
             "Heater warmup": "Temperaturen stiger ikke - tjek varmeren.",
             "Humidifier warmup": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
             "Dehumidifier warmup": "Luftfugtigheden falder ikke - tjek affugteren.",
@@ -34,7 +36,8 @@ class Malfunction_Watcher:
             "Humidity too high": "Luftfugtigheden er for høj - tjek affugteren."
         }
         self.malfunction_catchers = {
-            "Sensor": self.catch_sensor_malfunction,
+            "DHT22 sensor": self.catch_dht22_malfunction,
+            "DS18B20 sensor": self.catch_ds18b20_malfunction,
             "Heater warmup": self.catch_heater_warmup_malfunction,
             "Humidifier warmup": self.catch_humidifier_warmup_malfunction,
             "Dehumidifier warmup": self.catch_dehumidifier_warmup_malfunction,
@@ -45,14 +48,13 @@ class Malfunction_Watcher:
         }
     
     # Raises a malfunction if a connection with the DHT22 sensor cannot be established.
-    # Currently only outputs a message to terminal if any of the DS18B20 sensors are not working
     # TODO: turn off completely in case of this error
-    def catch_sensor_malfunction(self):
-        if self.sensors.sensor_error:
-            self.malfunctions["Sensor"] = True
-            self.malfunction_messages["Sensor"] = self.sensors.error_message
-        else:
-            self.malfunctions["Sensor"] = False
+    def catch_dht22_malfunction(self):
+        self.malfunctions["DHT22 sensor"] = self.sensors.dht22_error
+
+    # Raises a malfunction if a connection with the DS18B20 sensors cannot be established.
+    def catch_ds18b20_malfunction(self):
+        self.malfunctions["DS18B20 sensor"] = self.sensors.ds18b20_error
     
     # If the target temperature has not been reached after the time specified in HEATER_WARMUP_TIME
     # raises possible malfunction

@@ -22,8 +22,8 @@ class Sensors:
         self.stop_flag = Event()
         self.target_temperature_reached = False
         self.target_values_reached = False
-        self.sensor_error = False
-        self.error_message = ""
+        self.dht22_error = False
+        self.ds18b20_error = False
         self.initialize()
 
     def initialize(self) -> None:
@@ -41,7 +41,7 @@ class Sensors:
             os.system('modprobe w1-gpio')
             os.system('modprobe w1-therm')
         except OSError as e:
-            print("The DS18B20 probes cannot be initialized: " + str(e))
+            info_dialog("Fejl", "DS18B20 sensorer kan ikke initialiseres\nTjek forbindelsen.")
         self.base_dir = '/sys/bus/w1/devices/'
         self.temp_sensor_1_file = self.base_dir + '28-0000006a045f/w1_slave'
         self.temp_sensor_2_file = self.base_dir + '28-00000085eccb/w1_slave'
@@ -79,18 +79,17 @@ class Sensors:
                 # Read from DS18B20 probes
                 self.current_temp_1 = self.read_temp_from_probe(1)
                 self.current_temp_2 = self.read_temp_from_probe(2)
-                self.sensor_error = False
-                self.sensor_message = ""
+                self.dht22_error = False
+                self.ds18b20_error = False
+                self.error_message = ""
             except IndexError as e:
                 # An index error will be raised when one or both of the temp probes can't be accessed.
-                # Since they are not used for anything right now, it only outputs a message to terminal.
-                print("DS18B20 error: " + str(e))
+                self.ds18b20_error = True
             except Exception as e:
                 # Since the DHT22 frequently raises read errors, which almost always are inconsequential, only reacts
                 # to the "Sensor not found" error
                 if str(e) == "DHT sensor not found, check wiring":
-                    self.sensor_error = True
-                    self.error_message = "DHT22 blev ikke fundet, tjek forbindelsen."
+                    self.dht22_error = True
                 else:
                     print("Sensor error: " + str(e))
 

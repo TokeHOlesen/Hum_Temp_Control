@@ -6,12 +6,13 @@ def log_data(target_temp,
             current_temp,
             target_humidity,
             current_humidity,
+            opvarmet,
             ventilator,
             varmer,
             affugter,
             dampgenerator,
             fejl,
-            opvarmet):
+            fejl_meddelelse):
     
     field_names = [
         "tidspunkt",
@@ -19,12 +20,13 @@ def log_data(target_temp,
         "faktisk temperatur",
         "ønsket fugtighed",
         "faktisk fughtighed",
+        "opvarmet",
         "ventilator",
         "varmer",
         "affugter",
         "dampgenerator",
         "fejl",
-        "opvarmet"
+        "fejl meddelelse"
     ]
     
     now = datetime.now()
@@ -46,10 +48,11 @@ def log_data(target_temp,
             "faktisk temperatur": current_temp,
             "ønsket fugtighed": target_humidity,
             "faktisk fughtighed": current_humidity,
+            "opvarmet": opvarmet,
             "ventilator": ventilator,
             "varmer": varmer,
             "affugter": affugter,
             "dampgenerator": dampgenerator,
             "fejl": fejl,
-            "opvarmet": opvarmet
+            "fejl meddelelse": fejl_meddelelse
         })

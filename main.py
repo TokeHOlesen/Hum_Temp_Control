@@ -65,12 +65,13 @@ def update_gui_and_relays():
                     sensors.current_temp_dht,
                     user_input.target_humidity,
                     sensors.current_hum_dht,
+                    int(sensors.target_values_reached),
                     int(relays.ventilator_ch1.is_lit),
                     int(relays.varmer_ch2.is_lit),
                     int(relays.affugter_ch3.is_lit),
                     int(relays.damp_ch4.is_lit),
                     int(relays.error_ch6.is_lit),
-                    int(sensors.target_values_reached))
+                    malfunctions.message)
         
         # Stops the currently running process if the timer has reached 0
         if time_controller.stop_condition:

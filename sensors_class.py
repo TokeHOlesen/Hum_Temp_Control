@@ -1,10 +1,13 @@
+import RPi.GPIO as GPIO
 from threading import Event, Thread
 from time import sleep
 import board
 import adafruit_dht
 import os
+import sys
 
 import constants
+from dialog_window_functions import info_dialog
 
 
 class Sensors:
@@ -25,7 +28,14 @@ class Sensors:
 
     def initialize(self) -> None:
         # Initializes the DHT22 humidity and temperature sensor
-        self.dht22_sensor = adafruit_dht.DHT22(board.D18)
+        # Note: this is difficult to test as the exception will normally only occur if the previous session wasn't
+        # closed gracefully and GPIO pins have not been reset. May not work as expected.
+        try:
+            self.dht22_sensor = adafruit_dht.DHT22(board.D18)
+        except Exception as e:
+            info_dialog("Fejl", "GPIO pin 18 (DHT22) kan ikke sættes til 'read' tilstand.\nGenstart venligst din Raspberry Pi.")
+            GPIO.cleanup()
+            sys.exit()
         # Initializes the DS18B20 temperature probes
         try:
             os.system('modprobe w1-gpio')

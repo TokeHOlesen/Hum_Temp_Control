@@ -66,6 +66,7 @@ def update_gui_and_relays():
                     int(relays.error_ch6.is_lit),
                     int(sensors.target_values_reached))
         
+        # Stops the currently running process if the timer has reached 0
         if time_controller.stop_condition:
             gui.cancel_process()
 

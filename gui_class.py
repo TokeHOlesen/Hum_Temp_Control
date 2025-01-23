@@ -4,7 +4,7 @@ from dialog_window_functions import askyesno_dialog
 
 
 class Gui:
-    def __init__(self, relays, sensors, user_input, time_controller, malfunctions) -> None:
+    def __init__(self, relays, sensors, user_input, time_controller, malfunctions, logger) -> None:
         self.window = tk.Tk()
         self.window.title("Temperatur- og luftfugtighedsstyring")
         self.window.geometry("800x454")
@@ -14,6 +14,7 @@ class Gui:
         self.user_input = user_input
         self.time_controller = time_controller
         self.malfunctions = malfunctions
+        self.logger = logger
 
         # Data entry frame
 
@@ -283,6 +284,8 @@ class Gui:
         if self.user_input.is_correct:
             self.relays.running_ch5.on()
             self.sensors.reset()
+            self.malfunctions.reset()
+            self.logger.emergency_line_logged = False
             self.time_controller.start_timer()
             self.clear_text_entry_fields()
             self.target_temperature_textentry.focus_set()

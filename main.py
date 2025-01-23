@@ -7,7 +7,7 @@ from relays_class import Relays
 from sensors_class import Sensors
 from gui_class import Gui
 from malfunction_class import Malfunction_Watcher
-from data_logging_function import log_data
+from data_logger_class import DataLogger
 from dialog_window_functions import askyesno_dialog, info_dialog
 
 def main():
@@ -36,19 +36,37 @@ user_input = UserInput()
 time_controller = TimeController(user_input)
 # Checks for and reports malfunctions
 malfunctions = Malfunction_Watcher(relays, sensors, user_input, time_controller)
+# Logs data
+logger = DataLogger()
 # User interface
-gui = Gui(relays, sensors, user_input, time_controller, malfunctions)
+gui = Gui(relays, sensors, user_input, time_controller, malfunctions, logger)
 
 
 def update_gui_and_relays():
     """Updates the state of the relays and the GUI labels."""
     malfunctions.catch_malfunctions()
+    # If the DHT22 has malfunctioned, writes the state of the system to the log file and stops the running process
     if malfunctions.malfunctions["DHT22 sensor"]:
+        if relays.running_ch5.is_lit and not logger.emergency_line_logged:
+            logger.log_data(user_input.target_temp,
+            sensors.current_temp_dht,
+            user_input.target_humidity,
+            sensors.current_hum_dht,
+            int(sensors.target_values_reached),
+            int(relays.ventilator_ch1.is_lit),
+            int(relays.varmer_ch2.is_lit),
+            int(relays.affugter_ch3.is_lit),
+            int(relays.damp_ch4.is_lit),
+            int(relays.error_ch6.is_lit),
+            malfunctions.message)
+            logger.emergency_line_logged = True
+        
         relays.reset_all_channels()
         relays.error_ch6.on()
         time_controller.reset()
         user_input.reset()
-        malfunctions.reset()
+
+    
     relays.update_channels(sensors, user_input)
     gui.update()
     
@@ -61,7 +79,7 @@ def update_gui_and_relays():
             time_controller.restart_timer()
         
         if time_controller.log_condition:
-            log_data(user_input.target_temp,
+            logger.log_data(user_input.target_temp,
                     sensors.current_temp_dht,
                     user_input.target_humidity,
                     sensors.current_hum_dht,

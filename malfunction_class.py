@@ -25,7 +25,7 @@ class Malfunction_Watcher:
             "Humidity too high": False
         }
         self.malfunction_messages = {
-            "DHT22 sensor": "DHT22 blev ikke fundet, maskinen er stoppet.",
+            "DHT22 sensor": "DHT22 er offline, maskinen er stoppet.",
             "DS18B20 sensor": "DS18B20 temperatursensor fejl, tjek forbindelsen.",
             "Heater warmup": "Temperaturen stiger ikke - tjek varmeren.",
             "Humidifier warmup": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
@@ -48,7 +48,6 @@ class Malfunction_Watcher:
         }
     
     # Raises a malfunction if a connection with the DHT22 sensor cannot be established.
-    # TODO: turn off completely in case of this error
     def catch_dht22_malfunction(self):
         self.malfunctions["DHT22 sensor"] = self.sensors.dht22_error
 
@@ -149,3 +148,4 @@ class Malfunction_Watcher:
         for item in self.malfunctions:
             self.malfunctions[item] = False
         self.malfunction_found = False
+        self.message = ""

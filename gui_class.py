@@ -78,11 +78,11 @@ class Gui:
         
         # DS18B20 temperature probes
         
-        tk.Label(self.data_display_frame, text="Temp 1:", font=self.data_display_font).grid(row=2, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
+        tk.Label(self.data_display_frame, text="Indblæs. temperatur:", font=self.data_display_font).grid(row=2, column=0, sticky="w", padx=(5, 0), pady=(5, 0))
         self.temp_probe_1_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
         self.temp_probe_1_label.grid(row=2, column=1, sticky="w", padx=(0, 20), pady=(5, 0))
 
-        tk.Label(self.data_display_frame, text="Temp 2:", font=self.data_display_font).grid(row=2, column=2, sticky="w", pady=(5, 0))
+        tk.Label(self.data_display_frame, text="Udblæs. temperatur:", font=self.data_display_font).grid(row=2, column=2, sticky="w", pady=(5, 0))
         self.temp_probe_2_label = tk.Label(self.data_display_frame, text="N/A", font=self.data_display_font, width=8)
         self.temp_probe_2_label.grid(row=2, column=3, sticky="w", padx=(0, 5),  pady=(5, 0))
 

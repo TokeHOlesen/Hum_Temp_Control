@@ -15,21 +15,33 @@ class Malfunction_Watcher:
         self.message = ""
         self.malfunctions = {
             "Sensor": False,
-            "Heater": False,
-            "Humidifier": False,
-            "Dehumidifier": False
+            "Heater warmup": False,
+            "Humidifier warmup": False,
+            "Dehumidifier warmup": False,
+            "Temp too low": False,
+            "Temp too high": False,
+            "Humidity too low": False,
+            "Humidity too high": False
         }
         self.malfunction_messages = {
             "Sensor": "",
-            "Heater": "Temperaturen stiger ikke - tjek varmeren.",
-            "Humidifier": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
-            "Dehumidifier": "Luftfugtigheden falder ikke - tjek affugteren."
+            "Heater warmup": "Temperaturen stiger ikke - tjek varmeren.",
+            "Humidifier warmup": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
+            "Dehumidifier warmup": "Luftfugtigheden falder ikke - tjek affugteren.",
+            "Temp too low": "Temperaturen er for lav - tjek varmeren.",
+            "Temp too high": "Temperaturen er for høj - tjek varmeren.",
+            "Humidity too low": "Luftfugtigheden er for lav - tjek dampgeneratoren.",
+            "Humidity too high": "Luftfugtigheden er for høj - tjek affugteren."
         }
         self.malfunction_catchers = {
             "Sensor": self.catch_sensor_malfunction,
-            "Heater": self.catch_heater_malfunction,
-            "Humidifier": self.catch_humidifier_malfunction,
-            "Dehumidifier": self.catch_dehumidifier_malfunction
+            "Heater warmup": self.catch_heater_warmup_malfunction,
+            "Humidifier warmup": self.catch_humidifier_warmup_malfunction,
+            "Dehumidifier warmup": self.catch_dehumidifier_warmup_malfunction,
+            "Temp too low": self.catch_temperature_too_low_malfunction,
+            "Temp too high": self.catch_temperature_too_high_malfunction,
+            "Humidity too low": self.catch_humidity_too_low_malfunction,
+            "Humidity too high":self.catch_humidity_too_high_malfunction
         }
     
     # Raises a malfunction if a connection with the DHT22 sensor cannot be established.
@@ -44,34 +56,66 @@ class Malfunction_Watcher:
     
     # If the target temperature has not been reached after the time specified in HEATER_WARMUP_TIME
     # raises possible malfunction
-    def catch_heater_malfunction(self):
+    def catch_heater_warmup_malfunction(self):
         if self.relays.running_ch5.is_lit and self.time_controller.seconds_elapsed >= (constants.HEATER_WARMUP_TIME * 60) and not self.sensors.target_temperature_reached:
             if self.sensors.current_temp_dht < self.user_input.target_temp - constants.HUMIDITY_CONTROL_THRESHOLD:
-                self.malfunctions["Heater"] = True
+                self.malfunctions["Heater warmup"] = True
             else:
-                self.malfunctions["Heater"] = False
+                self.malfunctions["Heater warmup"] = False
     
     # If the target temperature has been reached but the humidity has not gone up and and is still below target after
     # the time specified in HUMIDIFIER_WARMUP_TIME (counting from the moment target temperature has been reached),
     # raises possible malfunction
-    def catch_humidifier_malfunction(self):
+    def catch_humidifier_warmup_malfunction(self):
         if self.relays.running_ch5.is_lit and self.sensors.target_temperature_reached and not self.sensors.target_values_reached:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.HUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht < self.user_input.target_humidity - constants.HUMIDITY_TOLERANCE:
-                    self.malfunctions["Humidifier"] = True
+                    self.malfunctions["Humidifier warmup"] = True
                 else:
-                    self.malfunctions["Humidifier"] = False
+                    self.malfunctions["Humidifier warmup"] = False
 
     # If the target temperature has been reached but the humidity has not gone down and and is still above target after
     # the time specified in DEHUMIDIFIER_WARMUP_TIME (counting from the moment target temperature has been reached),
     # raises possible malfunction
-    def catch_dehumidifier_malfunction(self):
+    def catch_dehumidifier_warmup_malfunction(self):
         if self.relays.running_ch5.is_lit and self.sensors.target_temperature_reached and not self.sensors.target_values_reached:
             if self.time_controller.seconds_elapsed_since_temp_reached >= (constants.DEHUMIDIFIER_WARMUP_TIME * 60):
                 if self.sensors.current_hum_dht > self.user_input.target_humidity + constants.HUMIDITY_TOLERANCE:
-                    self.malfunctions["Dehumidifier"] = True
+                    self.malfunctions["Dehumidifier warmup"] = True
                 else:
-                    self.malfunctions["Dehumidifier"] = False
+                    self.malfunctions["Dehumidifier warmup"] = False
+    
+    # After warmup, if the temperature falls too low, raises a malnfunction
+    def catch_temperature_too_low_malfunction(self):
+        if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
+            if self.sensors.current_temp_dht + constants.TEMPERATURE_ERROR_THRESHOLD <= self.user_input.target_temp:
+                self.malfunctions["Temp too low"] = True
+            else:
+                self.malfunctions["Temp too low"] = False
+    
+    # After warmup, if the temperature rises too high, raises a malnfunction
+    def catch_temperature_too_high_malfunction(self):
+        if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
+            if self.sensors.current_temp_dht - constants.TEMPERATURE_ERROR_THRESHOLD >= self.user_input.target_temp:
+                self.malfunctions["Temp too high"] = True
+            else:
+                self.malfunctions["Temp too high"] = False
+    
+    # After warmup, if the humidity falls too low, raises a malnfunction                
+    def catch_humidity_too_low_malfunction(self):
+        if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
+            if self.sensors.current_hum_dht + constants.HUMIDITY_ERROR_THRESHOLD <= self.user_input.target_humidity:
+                self.malfunctions["Humidity too low"] = True
+            else:
+                self.malfunctions["Humidity too low"] = False
+    
+    # After warmup, if the humidity rises too high, raises a malnfunction
+    def catch_humidity_too_high_malfunction(self):
+        if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
+            if self.sensors.current_hum_dht - constants.HUMIDITY_ERROR_THRESHOLD >= self.user_input.target_humidity:
+                self.malfunctions["Humidity too high"] = True
+            else:
+                self.malfunctions["Humidity too high"] = False
     
     def set_malfunctioned_flag(self):
         self.malfunction_found = False

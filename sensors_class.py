@@ -79,7 +79,6 @@ class Sensors:
                 # Read from DS18B20 probes
                 self.current_temp_1 = self.read_temp_from_probe(1)
                 self.current_temp_2 = self.read_temp_from_probe(2)
-                self.dht22_error = False
                 self.ds18b20_error = False
                 self.error_message = ""
             except IndexError as e:
@@ -106,5 +105,6 @@ class Sensors:
     def reset(self):
         self.target_temperature_reached = False
         self.target_values_reached = False
-        self.sensor_error = False
+        self.dht22_error = False
+        self.ds18b20_error = False
         self.error_message = ""

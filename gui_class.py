@@ -282,8 +282,10 @@ class Gui:
                         self.running_time_textentry.get())
         if self.user_input.is_correct:
             self.relays.running_ch5.on()
+            self.sensors.reset()
             self.time_controller.start_timer()
             self.clear_text_entry_fields()
+            self.target_temperature_textentry.focus_set()
             self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
             self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
         
@@ -301,7 +303,6 @@ class Gui:
         self.target_humidity_label.config(text="N/A")
         self.elapsed_time_label.config(text="N/A")
         self.remaining_time_label.config(text="N/A")
-        self.target_temperature_textentry.focus_set()
 
     def on_number_button_press(self, number) -> None:
         current_widget = self.window.focus_get()

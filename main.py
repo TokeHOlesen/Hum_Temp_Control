@@ -43,6 +43,12 @@ gui = Gui(relays, sensors, user_input, time_controller, malfunctions)
 def update_gui_and_relays():
     """Updates the state of the relays and the GUI labels."""
     malfunctions.catch_malfunctions()
+    if malfunctions.malfunctions["DHT22 sensor"]:
+        relays.reset_all_channels()
+        relays.error_ch6.on()
+        time_controller.reset()
+        user_input.reset()
+        malfunctions.reset()
     relays.update_channels(sensors, user_input)
     gui.update()
     

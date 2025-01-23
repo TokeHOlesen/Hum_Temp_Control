@@ -25,7 +25,7 @@ class Malfunction_Watcher:
             "Humidity too high": False
         }
         self.malfunction_messages = {
-            "DHT22 sensor": "DHT22 blev ikke fundet, tjek forbindelsen.",
+            "DHT22 sensor": "DHT22 blev ikke fundet, maskinen er stoppet.",
             "DS18B20 sensor": "DS18B20 temperatursensor fejl, tjek forbindelsen.",
             "Heater warmup": "Temperaturen stiger ikke - tjek varmeren.",
             "Humidifier warmup": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",

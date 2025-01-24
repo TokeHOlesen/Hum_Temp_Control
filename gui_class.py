@@ -19,13 +19,13 @@ class Gui:
         # Data entry frame
 
         self.target_entry_frame = tk.Frame(self.window)
-        self.target_entry_frame.grid(row=0, column=0, padx=70, pady=(15, 5), sticky="nw")
+        self.target_entry_frame.grid(row=0, column=0, padx=50, pady=(15, 5), sticky="nw")
         
         self.data_entry_font = ("TkDefaultFont", 13)
 
         # Target temperature entry
         tk.Label(self.target_entry_frame, text="Ønsket temperatur:", font=self.data_entry_font).grid(row=0, column=0, sticky="w")
-        self.target_temperature_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
+        self.target_temperature_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
         self.target_temperature_textentry.grid(row=0, column=1, padx=(12, 0))
         self.target_temperature_textentry.bind("<Return>", lambda event: self.target_humidity_textentry.focus_set())
         self.target_temperature_textentry.bind("<KP_Enter>", lambda event: self.target_humidity_textentry.focus_set())
@@ -34,23 +34,32 @@ class Gui:
 
         # Target humidity entry
         tk.Label(self.target_entry_frame, text="Ønsket luftfugtighed:", font=self.data_entry_font).grid(row=1, column=0, sticky="w")
-        self.target_humidity_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
+        self.target_humidity_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
         self.target_humidity_textentry.grid(row=1, column=1, padx=(12, 0))
-        self.target_humidity_textentry.bind("<Return>", lambda event: self.running_time_textentry.focus_set())
-        self.target_humidity_textentry.bind("<KP_Enter>", lambda event: self.running_time_textentry.focus_set())
-        self.target_humidity_textentry.bind("<Down>", lambda event: self.running_time_textentry.focus_set())
+        self.target_humidity_textentry.bind("<Return>", lambda event: self.running_time_h_textentry.focus_set())
+        self.target_humidity_textentry.bind("<KP_Enter>", lambda event: self.running_time_h_textentry.focus_set())
+        self.target_humidity_textentry.bind("<Down>", lambda event: self.running_time_h_textentry.focus_set())
         self.target_humidity_textentry.bind("<Up>", lambda event: self.target_temperature_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="%", font=self.data_entry_font).grid(row=1, column=2, sticky="w", padx=(5, 0))
 
         # Running time entry
         tk.Label(self.target_entry_frame, text="Behandlingstid:", font=self.data_entry_font).grid(row=2, column=0, sticky="w")
-        self.running_time_textentry = tk.Entry(self.target_entry_frame, width=8, font=self.data_entry_font)
-        self.running_time_textentry.grid(row=2, column=1, padx=(12, 0))
-        self.running_time_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
-        self.running_time_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
-        self.running_time_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
-        self.running_time_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
-        tk.Label(self.target_entry_frame, text="min.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
+        self.running_time_h_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
+        self.running_time_h_textentry.grid(row=2, column=1, padx=(12, 0), sticky="w")
+        self.running_time_h_textentry.bind("<Return>", lambda event: self.running_time_m_textentry.focus_set())
+        self.running_time_h_textentry.bind("<KP_Enter>", lambda event: self.running_time_m_textentry.focus_set())
+        self.running_time_h_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.running_time_h_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
+        self.running_time_h_textentry.bind("<Right>", lambda event: self.running_time_m_textentry.focus_set())
+        tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
+        self.running_time_m_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
+        self.running_time_m_textentry.grid(row=2, column=3, padx=(0, 0), sticky="w")
+        self.running_time_m_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
+        self.running_time_m_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
+        self.running_time_m_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.running_time_m_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
+        self.running_time_m_textentry.bind("<Left>", lambda event: self.running_time_h_textentry.focus_set())
+        tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=2, column=4, sticky="w", padx=(5, 0))
 
         # Data display frame
         
@@ -131,7 +140,7 @@ class Gui:
         self.start_button.bind("<Return>", lambda event: self.on_start_button_press())
         self.start_button.bind("<KP_Enter>", lambda event: self.on_start_button_press())
         self.start_button.bind("<Left>", lambda event: self.cancel_button.focus_set())
-        self.start_button.bind("<Up>", lambda event: self.running_time_textentry.focus_set())
+        self.start_button.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
 
         # Middle spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=2, padx=20)
@@ -142,7 +151,7 @@ class Gui:
         self.cancel_button.bind("<Return>", lambda event: self.on_cancel_button_press())
         self.cancel_button.bind("<KP_Enter>", lambda event: self.on_cancel_button_press())
         self.cancel_button.bind("<Right>", lambda event: self.start_button.focus_set())
-        self.cancel_button.bind("<Up>", lambda event: self.running_time_textentry.focus_set())
+        self.cancel_button.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
 
         # Right spacer
         tk.Label(self.button_frame, text="").grid(row=0, column=4)
@@ -246,13 +255,15 @@ class Gui:
             self.cancel_button.config(state="normal")
             self.target_temperature_textentry.config(state="disabled")
             self.target_humidity_textentry.config(state="disabled")
-            self.running_time_textentry.config(state="disabled")
+            self.running_time_h_textentry.config(state="disabled")
+            self.running_time_m_textentry.config(state="disabled")
         else:
             self.start_button.config(state="normal")
             self.cancel_button.config(state="disabled")
             self.target_temperature_textentry.config(state="normal")
             self.target_humidity_textentry.config(state="normal")
-            self.running_time_textentry.config(state="normal")
+            self.running_time_h_textentry.config(state="normal")
+            self.running_time_m_textentry.config(state="normal")
 
     def update_time_display(self) -> None:
         # Updates elapsed time display
@@ -275,19 +286,20 @@ class Gui:
     def clear_text_entry_fields(self) -> None:
         self.target_temperature_textentry.delete(0, tk.END)
         self.target_humidity_textentry.delete(0, tk.END)
-        self.running_time_textentry.delete(0, tk.END)
+        self.running_time_h_textentry.delete(0, tk.END)
+        self.running_time_m_textentry.delete(0, tk.END)
         
     def on_start_button_press(self) -> None:
         self.user_input.read(self.target_temperature_textentry.get(),
                         self.target_humidity_textentry.get(),
-                        self.running_time_textentry.get())
+                        self.running_time_h_textentry.get(),
+                        self.running_time_m_textentry.get())
         if self.user_input.is_correct:
             self.relays.running_ch5.on()
             self.sensors.reset()
             self.malfunctions.reset()
             self.logger.emergency_line_logged = False
             self.time_controller.start_timer()
-            self.clear_text_entry_fields()
             self.target_temperature_textentry.focus_set()
             self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
             self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
@@ -297,6 +309,11 @@ class Gui:
             self.cancel_process()
     
     def cancel_process(self) -> None:
+        self.target_temperature_textentry.config(state="normal")
+        self.target_humidity_textentry.config(state="normal")
+        self.running_time_h_textentry.config(state="normal")
+        self.running_time_m_textentry.config(state="normal")
+        self.clear_text_entry_fields()
         self.relays.reset_all_channels()
         self.time_controller.reset()
         self.user_input.reset()
@@ -306,6 +323,7 @@ class Gui:
         self.target_humidity_label.config(text="N/A")
         self.elapsed_time_label.config(text="N/A")
         self.remaining_time_label.config(text="N/A")
+
 
     def on_number_button_press(self, number) -> None:
         current_widget = self.window.focus_get()
@@ -325,7 +343,8 @@ class Gui:
         widgets = [
             self.target_temperature_textentry,
             self.target_humidity_textentry,
-            self.running_time_textentry,
+            self.running_time_h_textentry,
+            self.running_time_m_textentry,
             self.start_button
         ]
         

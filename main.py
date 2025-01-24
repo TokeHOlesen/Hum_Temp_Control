@@ -21,7 +21,7 @@ def main():
     # Runs the cleanup function close_gui() when the window is closed
     gui.window.protocol("WM_DELETE_WINDOW", close_gui)
     # Starts the GUI event loop
-    gui.window.mainloop()    
+    gui.window.mainloop()
 
 
 # Object initialization

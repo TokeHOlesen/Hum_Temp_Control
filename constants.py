@@ -18,8 +18,8 @@ MAX_TEMP = 45
 MIN_HUMIDITY = 0
 # Highest allowed humidity
 MAX_HUMIDITY = 100
-# How long the process can be scheduled for, in minutes
-MAX_TIME = 1440
+# How long the process can be scheduled for, in hours
+MAX_TIME = 24
 # How long to wait until an error is raised if the temperature has not reached target, in minutes 
 HEATER_WARMUP_TIME = 1
 # How long to wait until an error is raised if the humidity is below target, in minutes

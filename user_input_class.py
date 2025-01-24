@@ -16,7 +16,8 @@ class UserInput:
     def read(self,
              user_target_temp,
              user_target_humidity,
-             user_target_running_time) -> None:
+             user_target_running_time_h,
+             user_target_running_time_m) -> None:
         # Sets the .is_correct flag to True. If any of the inputs are incorrect, it will be set to False
         self.is_correct = True
         
@@ -52,16 +53,19 @@ class UserInput:
             info_dialog("Ugyldigt input", f"Den ønskede luftfugtighed skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")
             self.is_correct = False
         
-        if user_target_running_time == "":
+        if user_target_running_time_h == "" and user_target_running_time_m == "":
             self.running_time = 0
         else:
             try:
-                self.running_time = int(user_target_running_time)
-                if self.running_time not in range(0, constants.MAX_TIME + 1):
+                time_h = 0 if user_target_running_time_h == "" else int(user_target_running_time_h) * 60
+                time_m = 0 if user_target_running_time_m == "" else int(user_target_running_time_m)
+                
+                self.running_time = time_h + time_m
+                if self.running_time not in range(0, constants.MAX_TIME * 60 + 1):
                     raise ValueOutsideRangeError
             except ValueOutsideRangeError:
-                info_dialog("Ugyldigt input", f"Den ønskede køretid skal være\nmellem 1 og {constants.MAX_TIME} minutter (0 for ubestemt).")
+                info_dialog("Ugyldigt input", f"Den ønskede køretid må ikke\noverstige {constants.MAX_TIME} timer (tast 0 for ubestemt).")
                 self.is_correct = False
             except ValueError:
-                info_dialog("Ugyldigt input", f"Den ønskede køretid skal være et heltal\n(ingen bogstaver, mellerum eller decimaler).")
+                info_dialog("Ugyldigt input", f"Den ønskede køretid skal bestå af to heltal\n(ingen bogstaver, mellerum eller decimaler).")
                 self.is_correct = False

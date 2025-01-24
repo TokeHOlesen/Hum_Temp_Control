@@ -12,6 +12,7 @@ from malfunction_class import Malfunction_Watcher
 from data_logger_class import DataLogger
 from dialog_window_functions import askyesno_dialog, info_dialog
 
+
 def main():
     # Starts the thread that reads the sensors continuously
     sensors.thread.start()

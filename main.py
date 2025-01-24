@@ -48,17 +48,7 @@ def update_gui_and_relays():
     # If the DHT22 has malfunctioned, writes the state of the system to the log file and stops the running process
     if malfunctions.malfunctions["DHT22 sensor"]:
         if relays.running_ch5.is_lit and not logger.emergency_line_logged:
-            logger.log_data(user_input.target_temp,
-            sensors.current_temp_dht,
-            user_input.target_humidity,
-            sensors.current_hum_dht,
-            int(sensors.target_values_reached),
-            int(relays.ventilator_ch1.is_lit),
-            int(relays.varmer_ch2.is_lit),
-            int(relays.affugter_ch3.is_lit),
-            int(relays.damp_ch4.is_lit),
-            int(relays.error_ch6.is_lit),
-            malfunctions.message)
+            logger.log_data(user_input, sensors, relays, malfunctions)
             logger.emergency_line_logged = True
         
         relays.reset_all_channels()
@@ -66,11 +56,11 @@ def update_gui_and_relays():
         time_controller.reset()
         user_input.reset()
 
-    
     relays.update_channels(sensors, user_input)
     gui.update()
     
-    # When running, updates the log file periodically
+    # Checks if target values have been reached (separately for the temperature and the whole system),
+    # sets the relevant flags to True if yes
     if relays.running_ch5.is_lit:
         sensors.check_if_target_values_reached(user_input)
         if sensors.target_temperature_reached:
@@ -78,18 +68,9 @@ def update_gui_and_relays():
         if sensors.target_values_reached:
             time_controller.restart_timer()
         
+        # Logs data periodically
         if time_controller.log_condition:
-            logger.log_data(user_input.target_temp,
-                    sensors.current_temp_dht,
-                    user_input.target_humidity,
-                    sensors.current_hum_dht,
-                    int(sensors.target_values_reached),
-                    int(relays.ventilator_ch1.is_lit),
-                    int(relays.varmer_ch2.is_lit),
-                    int(relays.affugter_ch3.is_lit),
-                    int(relays.damp_ch4.is_lit),
-                    int(relays.error_ch6.is_lit),
-                    malfunctions.message)
+            logger.log_data(user_input, sensors, relays, malfunctions)
         
         # Stops the currently running process if the timer has reached 0
         if time_controller.stop_condition:

@@ -1,7 +1,7 @@
 import constants
 
 from dialog_window_functions import info_dialog
-from error_definitions import ValueOutsideRangeError, ValueMissingError
+from error_definitions import ValueOutsideRangeError, MinuteValueOutsideRangeError, ValueMissingError
 
 class UserInput:
     def __init__(self) -> None:
@@ -60,11 +60,21 @@ class UserInput:
                 time_h = 0 if user_target_running_time_h == "" else int(user_target_running_time_h) * 60
                 time_m = 0 if user_target_running_time_m == "" else int(user_target_running_time_m)
                 
+                if time_m not in range(60):
+                    raise MinuteValueOutsideRangeError
+                
+                if time_h < 0:
+                    raise ValueError
+                
                 self.running_time = time_h + time_m
                 if self.running_time not in range(0, constants.MAX_TIME * 60 + 1):
                     raise ValueOutsideRangeError
+                
             except ValueOutsideRangeError:
                 info_dialog("Ugyldigt input", f"Den ønskede køretid må ikke\noverstige {constants.MAX_TIME} timer (tast 0 for ubestemt).")
+                self.is_correct = False
+            except MinuteValueOutsideRangeError:
+                info_dialog("Ugyldigt input", f"Værdien i minutfeltet skal være\nmellem 0 og 59.")
                 self.is_correct = False
             except ValueError:
                 info_dialog("Ugyldigt input", f"Den ønskede køretid skal bestå af to heltal\n(ingen bogstaver, mellerum eller decimaler).")

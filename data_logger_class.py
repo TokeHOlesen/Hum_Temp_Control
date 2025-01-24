@@ -38,7 +38,7 @@ class DataLogger:
         filename = f"./Logfiler/{current_date}.csv"
         day_log_exists = os.path.exists(filename)
         
-        with open(filename, mode='a' if day_log_exists else 'w', newline='') as log_file:
+        with open(filename, mode='a' if day_log_exists else 'w', newline='', encoding='utf-8-sig') as log_file:
             writer = csv.DictWriter(log_file, fieldnames=field_names, delimiter=";")
         
             if not day_log_exists:

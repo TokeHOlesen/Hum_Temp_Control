@@ -21,13 +21,13 @@ MAX_HUMIDITY = 100
 # How long the process can be scheduled for, in hours
 MAX_TIME = 24
 # How long to wait until an error is raised if the temperature has not reached target, in minutes 
-HEATER_WARMUP_TIME = 1
+HEATER_WARMUP_TIME = 30
 # How long to wait until an error is raised if the humidity is below target, in minutes
 # Counting from the moment when the target temperature (+- HUMIDITY_CONTROL_TRESHOLD) has been reached
-HUMIDIFIER_WARMUP_TIME = 1
+HUMIDIFIER_WARMUP_TIME = 20
 # How long to wait until an error is raised if the humidity is above target, in minutes
 # Counting from the moment when the target temperature (+- HUMIDITY_CONTROL_TRESHOLD) has been reached
-DEHUMIDIFIER_WARMUP_TIME = 1
+DEHUMIDIFIER_WARMUP_TIME = 20
 # How much the temperature has to deviate from target (after warmup) before a malfunction is raised (in degrees C)
 TEMPERATURE_ERROR_THRESHOLD = 15
 # How far the humidity has to deviate from target (after warmup) bofore a malfunction is raised (in % RH)

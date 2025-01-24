@@ -7,7 +7,7 @@ class Gui:
     def __init__(self, relays, sensors, user_input, time_controller, malfunctions, logger) -> None:
         self.window = tk.Tk()
         self.window.title("Temperatur- og luftfugtighedsstyring")
-        self.window.geometry("800x454")
+        self.window.geometry("800x418")
         
         self.relays = relays
         self.sensors = sensors

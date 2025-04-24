@@ -73,10 +73,11 @@ class Sensors:
         """
         while not self.stop_flag.is_set():
             try:
-                # Read from DHT22
+                # Reads from DHT22; if an error is present, clears it if successful.
                 self.current_temp_dht = self.dht22_sensor.temperature
                 self.current_hum_dht = self.dht22_sensor.humidity
-                # Read from DS18B20 probes
+                self.dht22_error = False
+                # Reads from DS18B20 probes
                 self.current_temp_1 = self.read_temp_from_probe(1)
                 self.current_temp_2 = self.read_temp_from_probe(2)
                 self.ds18b20_error = False

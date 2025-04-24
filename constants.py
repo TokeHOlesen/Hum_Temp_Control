@@ -9,7 +9,7 @@ TEMPERATURE_TOLERANCE = 2
 # How much the humidity has to stray from target before the (de)humidifier is turned on or off
 HUMIDITY_TOLERANCE = 2
 # How much the temperature can stray from target before humidifier and dehumidifier can be turned on or off
-HUMIDITY_CONTROL_THRESHOLD = 10
+HUMIDITY_CONTROL_THRESHOLD = 30
 # Lowest allowed temperature
 MIN_TEMP = 0
 # Highest allowed temperature
@@ -21,15 +21,16 @@ MAX_HUMIDITY = 100
 # How long the process can be scheduled for, in hours
 MAX_TIME = 24
 # How long to wait until an error is raised if the temperature has not reached target, in minutes 
-HEATER_WARMUP_TIME = 30
+HEATER_WARMUP_TIME = 60
 # How long to wait until an error is raised if the humidity is below target, in minutes
 # Counting from the moment when the target temperature (+- HUMIDITY_CONTROL_TRESHOLD) has been reached
-HUMIDIFIER_WARMUP_TIME = 20
+HUMIDIFIER_WARMUP_TIME = 60
 # How long to wait until an error is raised if the humidity is above target, in minutes
 # Counting from the moment when the target temperature (+- HUMIDITY_CONTROL_TRESHOLD) has been reached
-DEHUMIDIFIER_WARMUP_TIME = 20
+DEHUMIDIFIER_WARMUP_TIME = 60
 # How much the temperature has to deviate from target (after warmup) before a malfunction is raised (in degrees C)
 TEMPERATURE_ERROR_THRESHOLD = 15
 # How far the humidity has to deviate from target (after warmup) bofore a malfunction is raised (in % RH)
 HUMIDITY_ERROR_THRESHOLD = 10
-
+# How long to stay in quarantine mode before a DHT22 malfunction is raised and the machine is stopped
+QUARANTINE_LENGTH = 30

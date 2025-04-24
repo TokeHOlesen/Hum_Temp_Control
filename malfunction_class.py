@@ -15,6 +15,7 @@ class Malfunction_Watcher:
         self.message = ""
         self.malfunctions = {
             "DHT22 sensor": False,
+            "DHT22 quarantine": False,
             "DS18B20 sensor": False,
             "Heater warmup": False,
             "Humidifier warmup": False,
@@ -26,6 +27,7 @@ class Malfunction_Watcher:
         }
         self.malfunction_messages = {
             "DHT22 sensor": "DHT22 er offline, maskinen er stoppet.",
+            "DHT22 quarantine": "DTH22 er offline, forsøger at genetablere forbindelsen.",
             "DS18B20 sensor": "DS18B20 temperatursensor fejl, tjek forbindelsen.",
             "Heater warmup": "Temperaturen stiger ikke - tjek varmeren.",
             "Humidifier warmup": "Luftfugtigheden stiger ikke - tjek dampgeneratoren.",
@@ -37,6 +39,7 @@ class Malfunction_Watcher:
         }
         self.malfunction_catchers = {
             "DHT22 sensor": self.catch_dht22_malfunction,
+            "DHT22 quarantine": self.catch_dht22_quarantine,
             "DS18B20 sensor": self.catch_ds18b20_malfunction,
             "Heater warmup": self.catch_heater_warmup_malfunction,
             "Humidifier warmup": self.catch_humidifier_warmup_malfunction,
@@ -47,9 +50,21 @@ class Malfunction_Watcher:
             "Humidity too high":self.catch_humidity_too_high_malfunction
         }
     
-    # Raises a malfunction if a connection with the DHT22 sensor cannot be established.
+    # If the DHT22 sensor has been in quarantine for a set amount of time, sets the malfunction flag and stops the machine.
     def catch_dht22_malfunction(self):
-        self.malfunctions["DHT22 sensor"] = self.sensors.dht22_error
+        if self.malfunctions["DHT22 quarantine"]:
+            if self.time_controller.seconds_in_quarantine * 60 > constants.QUARANTINE_LENGTH:
+                self.malfunctions["DHT22 sensor"] = True
+        
+    # If a connection with the DHT22 sensor cannot be established, puts the sensor in quarantine mode and starts
+    # the quarantine timer. Removes the flag if the connection has been reestablished.
+    def catch_dht22_quarantine(self):
+        if self.sensors.dht22_error:
+            if not self.malfunctions["DHT22 quarantine"]:
+                self.malfunctions["DHT22 quarantine"] = True
+                self.time_controller.start_dht22_quarantine()
+        else:
+            self.malfunctions["DHT22 quarantine"] = False
 
     # Raises a malfunction if a connection with the DS18B20 sensors cannot be established.
     def catch_ds18b20_malfunction(self):

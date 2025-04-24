@@ -21,7 +21,10 @@ class TimeController:
     def set_temp_reached_timestamp(self) -> None:
         if self.temp_reached_timestamp is None:
             self.temp_reached_timestamp = perf_counter()
-    
+            
+    def start_dht22_quarantine(self) -> None:
+        self.quarantine_start = perf_counter()
+            
     @property
     def seconds_remaining(self) -> int:
         return self.user_input.running_time * 60 - self.seconds_elapsed
@@ -61,6 +64,11 @@ class TimeController:
             return True
         self.log_written = False
         return False
+    
+    @property
+    def seconds_in_quarantine(self) -> int:
+        """Returns how much time has elapsed since the DHT22 quarantine started (in seconds)"""
+        return int(perf_counter() - self.quarantine_start)
     
     def reset(self) -> None:
         self.temp_reached_timestamp = None

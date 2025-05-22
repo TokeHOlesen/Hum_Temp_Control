@@ -32,5 +32,5 @@ DEHUMIDIFIER_WARMUP_TIME = 60
 TEMPERATURE_ERROR_THRESHOLD = 15
 # How far the humidity has to deviate from target (after warmup) bofore a malfunction is raised (in % RH)
 HUMIDITY_ERROR_THRESHOLD = 10
-# How long to stay in quarantine mode before a DHT22 malfunction is raised and the machine is stopped
-QUARANTINE_LENGTH = 30
+# How long to stay in quarantine mode before a DHT22 malfunction is raised and the machine is stopped (in seconds)
+QUARANTINE_LENGTH = 1800

@@ -53,7 +53,7 @@ class Malfunction_Watcher:
     # If the DHT22 sensor has been in quarantine for a set amount of time, sets the malfunction flag and stops the machine.
     def catch_dht22_malfunction(self):
         if self.malfunctions["DHT22 quarantine"]:
-            if self.time_controller.seconds_in_quarantine * 60 > constants.QUARANTINE_LENGTH:
+            if self.time_controller.seconds_in_quarantine > constants.QUARANTINE_LENGTH:
                 self.malfunctions["DHT22 sensor"] = True
         
     # If a connection with the DHT22 sensor cannot be established, puts the sensor in quarantine mode and starts

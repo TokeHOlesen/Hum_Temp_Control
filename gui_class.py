@@ -338,6 +338,7 @@ class Gui:
         self.target_humidity_textentry.config(state="normal")
         self.running_time_h_textentry.config(state="normal")
         self.running_time_m_textentry.config(state="normal")
+        self.delayed_start_textentry.config(state="normal")
         self.clear_text_entry_fields()
         self.relays.reset_all_channels()
         self.time_controller.reset()

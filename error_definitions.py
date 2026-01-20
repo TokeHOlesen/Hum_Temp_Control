@@ -6,6 +6,11 @@ class ValueOutsideRangeError(Exception):
 class MinuteValueOutsideRangeError(Exception):
     def __init__(self, message="Minute value is outside the allowed range."):
         super().__init__(message)
+        
+
+class HourValueOutsideRangeError(Exception):
+    def __init__(self, message="Hour value is outside the allowed range."):
+        super().__init__(message)
 
 
 class ValueMissingError(Exception):

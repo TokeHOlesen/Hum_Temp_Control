@@ -1,4 +1,5 @@
-from time import perf_counter
+from datetime import datetime
+from time import time
 import constants
 
 
@@ -8,22 +9,34 @@ class TimeController:
         self.log_written = False
         self.temp_reached_timestamp = None
         self.timer_restarted = False
+        self.delayed_startup_time = 0
+        self.delayed_startup_text = ""
         self.reset()
     
+    def set_delayed_startup_time(self, delay) -> None:
+        self.delayed_startup_time = time() + delay * 3600
+        self.delayed_startup_text = datetime.fromtimestamp(self.delayed_startup_time).strftime("%d-%m-%Y %H:%M")
+    
     def start_timer(self) -> None:
-        self.start = perf_counter()
+        self.start = time()
         
     def restart_timer(self) -> None:
         if not self.timer_restarted:
-            self.start = perf_counter()
+            self.start = time()
             self.timer_restarted = True
     
     def set_temp_reached_timestamp(self) -> None:
         if self.temp_reached_timestamp is None:
-            self.temp_reached_timestamp = perf_counter()
+            self.temp_reached_timestamp = time()
             
     def start_dht22_quarantine(self) -> None:
-        self.quarantine_start = perf_counter()
+        self.quarantine_start = time()
+    
+    @property
+    def delayed_startup_time_reached(self) -> bool:
+        if time() >= self.delayed_startup_time:
+            return True
+        return False
             
     @property
     def seconds_remaining(self) -> int:
@@ -31,11 +44,11 @@ class TimeController:
     
     @property
     def seconds_elapsed(self) -> int:
-        return int(perf_counter() - self.start)
+        return int(time() - self.start)
     
     @property
     def seconds_elapsed_since_temp_reached(self) -> int:
-        return int(perf_counter() - self.temp_reached_timestamp)
+        return int(time() - self.temp_reached_timestamp)
     
     @property
     def elapsed_h_m_s(self) -> tuple[int, int, int]:
@@ -68,7 +81,7 @@ class TimeController:
     @property
     def seconds_in_quarantine(self) -> int:
         """Returns how much time has elapsed since the DHT22 quarantine started (in seconds)"""
-        return int(perf_counter() - self.quarantine_start)
+        return int(time() - self.quarantine_start)
     
     def reset(self) -> None:
         self.temp_reached_timestamp = None
@@ -76,4 +89,6 @@ class TimeController:
         self.elapsed = None
         self.remaining = None
         self.timer_restarted = False
+        self.delayed_startup_time = 0
+        self.delayed_startup_text = ""
         

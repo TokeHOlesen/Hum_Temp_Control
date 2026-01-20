@@ -20,6 +20,8 @@ MIN_HUMIDITY = 0
 MAX_HUMIDITY = 100
 # How long the process can be scheduled for, in hours
 MAX_TIME = 24
+# How long the startup can be delayed, in hours
+MAX_DELAY = 240
 # How long to wait until an error is raised if the temperature has not reached target, in minutes 
 HEATER_WARMUP_TIME = 60
 # How long to wait until an error is raised if the humidity is below target, in minutes

@@ -1,7 +1,7 @@
 import constants
 
 from dialog_window_functions import info_dialog
-from error_definitions import ValueOutsideRangeError, MinuteValueOutsideRangeError, ValueMissingError
+from error_definitions import ValueOutsideRangeError, MinuteValueOutsideRangeError, HourValueOutsideRangeError, ValueMissingError
 
 class UserInput:
     def __init__(self) -> None:
@@ -12,12 +12,14 @@ class UserInput:
         self.target_temp = None
         self.target_humidity = None
         self.running_time = None
+        self.startup_delay = None
     
     def read(self,
              user_target_temp,
              user_target_humidity,
              user_target_running_time_h,
-             user_target_running_time_m) -> None:
+             user_target_running_time_m,
+             user_startup_delay) -> None:
         # Sets the .is_correct flag to True. If any of the inputs are incorrect, it will be set to False
         self.is_correct = True
         
@@ -78,4 +80,21 @@ class UserInput:
                 self.is_correct = False
             except ValueError:
                 info_dialog("Ugyldigt input", f"Den ønskede køretid skal bestå af to heltal\n(ingen bogstaver, mellerum eller decimaler).")
+                self.is_correct = False
+        
+        if user_startup_delay == "":
+            self.startup_delay = 0
+        else:
+            try:
+                if not user_startup_delay.isnumeric():
+                    raise ValueError
+                if not user_startup_delay in range(0, constants.MAX_DELAY):
+                    raise HourValueOutsideRangeError
+                self.startup_delay = user_startup_delay
+            
+            except ValueError:
+                info_dialog("Ugyldigt input", f"Opstart må højst udsættes med {constants.MAX_DELAY} timer.")
+                self.is_correct = False
+            except HourValueOutsideRangeError:
+                info_dialog("Ugyldigt input", f"I feltet 'Udsat opstart' må der kun skrives heltal\n(ingen bogstaver, mellerum eller decimaler).")
                 self.is_correct = False

@@ -21,7 +21,7 @@ class Gui:
         self.target_entry_frame = tk.Frame(self.window)
         self.target_entry_frame.grid(row=0, column=0, padx=50, pady=(15, 5), sticky="nw")
         
-        self.data_entry_font = ("TkDefaultFont", 13)
+        self.data_entry_font = ("TkDefaultFont", 12)
 
         # Target temperature entry
         tk.Label(self.target_entry_frame, text="Ønsket temperatur:", font=self.data_entry_font).grid(row=0, column=0, sticky="w")
@@ -54,12 +54,22 @@ class Gui:
         tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
         self.running_time_m_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
         self.running_time_m_textentry.grid(row=2, column=3, padx=(0, 0), sticky="w")
-        self.running_time_m_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
-        self.running_time_m_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
-        self.running_time_m_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.running_time_m_textentry.bind("<Return>", lambda event: self.delayed_start_textentry.focus_set())
+        self.running_time_m_textentry.bind("<KP_Enter>", lambda event: self.delayed_start_textentry.focus_set())
+        self.running_time_m_textentry.bind("<Down>", lambda event: self.delayed_start_textentry.focus_set())
         self.running_time_m_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
         self.running_time_m_textentry.bind("<Left>", lambda event: self.running_time_h_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=2, column=4, sticky="w", padx=(5, 0))
+        
+        # Time delay entry
+        tk.Label(self.target_entry_frame, text="Udsat opstart:", font=self.data_entry_font).grid(row=3, column=0, sticky="w")
+        self.delayed_start_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
+        self.delayed_start_textentry.grid(row=3, column=1, padx=(12, 0))
+        self.delayed_start_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
+        self.delayed_start_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
+        self.delayed_start_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.delayed_start_textentry.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
+        tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=3, column=2, sticky="w", padx=(5, 0))
 
         # Data display frame
         
@@ -244,6 +254,11 @@ class Gui:
                     self.status_label.config(text="Kører.")
                 else:
                     self.status_label.config(text="Starter op.")
+        elif self.time_controller.delayed_startup_time:
+            if self.time_controller.delayed_startup_time_reached:
+                self.start_up()
+            else:
+                self.status_label.config(text=f"Opstart udsat til d. {self.time_controller.delayed_startup_text}")
         else:
              self.status_label.config(text="Stoppet.")
         self.error_label.config(text=self.malfunctions.message, fg="Red") if self.relays.error_ch6.is_lit else self.error_label.config(text="Ingen fejl.", fg="Green")
@@ -288,21 +303,29 @@ class Gui:
         self.target_humidity_textentry.delete(0, tk.END)
         self.running_time_h_textentry.delete(0, tk.END)
         self.running_time_m_textentry.delete(0, tk.END)
+        self.delayed_start_textentry.delete(0, tk.END)
         
     def on_start_button_press(self) -> None:
         self.user_input.read(self.target_temperature_textentry.get(),
                         self.target_humidity_textentry.get(),
                         self.running_time_h_textentry.get(),
-                        self.running_time_m_textentry.get())
+                        self.running_time_m_textentry.get(),
+                        self.delayed_start_textentry.get())
         if self.user_input.is_correct:
-            self.relays.running_ch5.on()
-            self.sensors.reset()
-            self.malfunctions.reset()
-            self.logger.emergency_line_logged = False
-            self.time_controller.start_timer()
-            self.target_temperature_textentry.focus_set()
-            self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
-            self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
+            if self.user_input.startup_delay == 0:
+                self.start_up()
+            else:
+                self.time_controller.set_delayed_startup_time(self.user_input.startup_delay)
+    
+    def start_up(self) -> None:
+        self.relays.running_ch5.on()
+        self.sensors.reset()
+        self.malfunctions.reset()
+        self.logger.emergency_line_logged = False
+        self.time_controller.start_timer()
+        self.target_temperature_textentry.focus_set()
+        self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
+        self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
         
     def on_cancel_button_press(self) -> None:
         if askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde kørslen?"):

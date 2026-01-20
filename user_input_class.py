@@ -86,11 +86,9 @@ class UserInput:
             self.startup_delay = 0
         else:
             try:
-                if not user_startup_delay.isnumeric():
-                    raise ValueError
+                self.startup_delay = int(user_startup_delay)
                 if not user_startup_delay in range(0, constants.MAX_DELAY):
                     raise HourValueOutsideRangeError
-                self.startup_delay = user_startup_delay
             
             except ValueError:
                 info_dialog("Ugyldigt input", f"Opstart må højst udsættes med {constants.MAX_DELAY} timer.")

@@ -48,7 +48,7 @@ class Gui:
         self.running_time_h_textentry.grid(row=2, column=1, padx=(12, 0), sticky="w")
         self.running_time_h_textentry.bind("<Return>", lambda event: self.running_time_m_textentry.focus_set())
         self.running_time_h_textentry.bind("<KP_Enter>", lambda event: self.running_time_m_textentry.focus_set())
-        self.running_time_h_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.running_time_h_textentry.bind("<Down>", lambda event: self.delayed_start_textentry.focus_set())
         self.running_time_h_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
         self.running_time_h_textentry.bind("<Right>", lambda event: self.running_time_m_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
@@ -169,7 +169,7 @@ class Gui:
         # Status frame
 
         self.status_frame = tk.Frame(self.window)
-        self.status_frame.grid(row=3, column=0, padx=10, pady=15, sticky="nw")
+        self.status_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nw")
         self.status_frame.grid_columnconfigure(0, weight=0)
         self.status_frame.grid_columnconfigure(1, weight=1)
         
@@ -265,13 +265,14 @@ class Gui:
         if self.time_controller.start is not None:
             self.update_time_display()
         
-        if self.relays.running_ch5.is_lit:
+        if self.relays.running_ch5.is_lit or self.time_controller.delayed_startup_time:
             self.start_button.config(state="disabled")
             self.cancel_button.config(state="normal")
             self.target_temperature_textentry.config(state="disabled")
             self.target_humidity_textentry.config(state="disabled")
             self.running_time_h_textentry.config(state="disabled")
             self.running_time_m_textentry.config(state="disabled")
+            self.delayed_start_textentry.config(state="disabled")
         else:
             self.start_button.config(state="normal")
             self.cancel_button.config(state="disabled")
@@ -279,6 +280,7 @@ class Gui:
             self.target_humidity_textentry.config(state="normal")
             self.running_time_h_textentry.config(state="normal")
             self.running_time_m_textentry.config(state="normal")
+            self.delayed_start_textentry.config(state="normal")
 
     def update_time_display(self) -> None:
         # Updates elapsed time display
@@ -328,7 +330,7 @@ class Gui:
         self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
         
     def on_cancel_button_press(self) -> None:
-        if askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde kørslen?"):
+        if askyesno_dialog("Bekræft afslutning", "Er du sikker på, at du vil afbryde?"):
             self.cancel_process()
     
     def cancel_process(self) -> None:

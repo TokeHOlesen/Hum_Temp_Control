@@ -14,7 +14,7 @@ class TimeController:
         self.reset()
     
     def set_delayed_startup_time(self, delay) -> None:
-        self.delayed_startup_time = time() + delay * 60 # Test only - change to 3600 when done
+        self.delayed_startup_time = time() + delay * 3600 # Test only - change to 3600 when done
         self.delayed_startup_text = datetime.fromtimestamp(self.delayed_startup_time).strftime("%d-%m-%Y %H:%M")
     
     def start_timer(self) -> None:

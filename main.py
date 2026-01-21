@@ -63,7 +63,7 @@ def update_gui_and_relays():
     gui.update()
     
     # Checks if target values have been reached (separately for the temperature and the whole system),
-    # sets the relevant flags to True if yes
+    # sets the relevant flags to True if yes.
     if relays.running_ch5.is_lit:
         sensors.check_if_target_values_reached(user_input)
         if sensors.target_temperature_reached:

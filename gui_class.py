@@ -19,7 +19,7 @@ class Gui:
         # Data entry frame
 
         self.target_entry_frame = tk.Frame(self.window)
-        self.target_entry_frame.grid(row=0, column=0, padx=50, pady=(15, 5), sticky="nw")
+        self.target_entry_frame.grid(row=0, column=0, padx=50, pady=(10, 5), sticky="nw")
         
         self.data_entry_font = ("TkDefaultFont", 12)
 

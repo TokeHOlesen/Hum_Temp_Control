@@ -94,6 +94,5 @@ class TimeController:
         self.elapsed = None
         self.remaining = None
         self.timer_restarted = False
-        self.delayed_startup_time = 0
-        self.delayed_startup_text = ""
+        self.clear_delayed_startup_time()
         

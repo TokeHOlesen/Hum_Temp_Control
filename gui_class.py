@@ -69,6 +69,7 @@ class Gui:
         self.delayed_start_h_textentry.bind("<KP_Enter>", lambda event: self.delayed_start_m_textentry.focus_set())
         self.delayed_start_h_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
         self.delayed_start_h_textentry.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
+        self.delayed_start_h_textentry.bind("<Right>", lambda event: self.delayed_start_m_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=3, column=2, sticky="w", padx=(5, 0))
         self.delayed_start_m_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
         self.delayed_start_m_textentry.grid(row=3, column=3, padx=(0, 0), sticky="w")
@@ -77,7 +78,7 @@ class Gui:
         self.delayed_start_m_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
         self.delayed_start_m_textentry.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
         self.delayed_start_m_textentry.bind("<Left>", lambda event: self.delayed_start_h_textentry.focus_set())
-        tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=2, column=4, sticky="w", padx=(5, 0))
+        tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=3, column=4, sticky="w", padx=(5, 0))
 
         # Data display frame
         

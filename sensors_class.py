@@ -86,7 +86,7 @@ class Sensors:
                 # An index error will be raised when one or both of the temp probes can't be accessed.
                 self.ds18b20_error = True
             except Exception as e:
-                # Since the DHT22 frequently raises read errors, which almost always are inconsequential, only reacts
+                # Since the DHT22 frequently raises read errors, which are almost always inconsequential, only reacts
                 # to the "Sensor not found" error
                 if str(e) == "DHT sensor not found, check wiring":
                     self.dht22_error = True

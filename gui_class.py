@@ -48,28 +48,36 @@ class Gui:
         self.running_time_h_textentry.grid(row=2, column=1, padx=(12, 0), sticky="w")
         self.running_time_h_textentry.bind("<Return>", lambda event: self.running_time_m_textentry.focus_set())
         self.running_time_h_textentry.bind("<KP_Enter>", lambda event: self.running_time_m_textentry.focus_set())
-        self.running_time_h_textentry.bind("<Down>", lambda event: self.delayed_start_textentry.focus_set())
+        self.running_time_h_textentry.bind("<Down>", lambda event: self.delayed_start_h_textentry.focus_set())
         self.running_time_h_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
         self.running_time_h_textentry.bind("<Right>", lambda event: self.running_time_m_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=2, column=2, sticky="w", padx=(5, 0))
         self.running_time_m_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
         self.running_time_m_textentry.grid(row=2, column=3, padx=(0, 0), sticky="w")
-        self.running_time_m_textentry.bind("<Return>", lambda event: self.delayed_start_textentry.focus_set())
-        self.running_time_m_textentry.bind("<KP_Enter>", lambda event: self.delayed_start_textentry.focus_set())
-        self.running_time_m_textentry.bind("<Down>", lambda event: self.delayed_start_textentry.focus_set())
+        self.running_time_m_textentry.bind("<Return>", lambda event: self.delayed_start_h_textentry.focus_set())
+        self.running_time_m_textentry.bind("<KP_Enter>", lambda event: self.delayed_start_h_textentry.focus_set())
+        self.running_time_m_textentry.bind("<Down>", lambda event: self.delayed_start_h_textentry.focus_set())
         self.running_time_m_textentry.bind("<Up>", lambda event: self.target_humidity_textentry.focus_set())
         self.running_time_m_textentry.bind("<Left>", lambda event: self.running_time_h_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=2, column=4, sticky="w", padx=(5, 0))
         
         # Time delay entry
         tk.Label(self.target_entry_frame, text="Udsæt opstart:", font=self.data_entry_font).grid(row=3, column=0, sticky="w")
-        self.delayed_start_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
-        self.delayed_start_textentry.grid(row=3, column=1, padx=(12, 0))
-        self.delayed_start_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
-        self.delayed_start_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
-        self.delayed_start_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
-        self.delayed_start_textentry.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
+        self.delayed_start_h_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
+        self.delayed_start_h_textentry.grid(row=3, column=1, padx=(12, 0))
+        self.delayed_start_h_textentry.bind("<Return>", lambda event: self.delayed_start_m_textentry.focus_set())
+        self.delayed_start_h_textentry.bind("<KP_Enter>", lambda event: self.delayed_start_m_textentry.focus_set())
+        self.delayed_start_h_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.delayed_start_h_textentry.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
         tk.Label(self.target_entry_frame, text="t.", font=self.data_entry_font).grid(row=3, column=2, sticky="w", padx=(5, 0))
+        self.delayed_start_m_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
+        self.delayed_start_m_textentry.grid(row=3, column=3, padx=(0, 0), sticky="w")
+        self.delayed_start_m_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
+        self.delayed_start_m_textentry.bind("<KP_Enter>", lambda event: self.start_button.focus_set())
+        self.delayed_start_m_textentry.bind("<Down>", lambda event: self.start_button.focus_set())
+        self.delayed_start_m_textentry.bind("<Up>", lambda event: self.running_time_h_textentry.focus_set())
+        self.delayed_start_m_textentry.bind("<Left>", lambda event: self.delayed_start_h_textentry.focus_set())
+        tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=2, column=4, sticky="w", padx=(5, 0))
 
         # Data display frame
         
@@ -273,7 +281,8 @@ class Gui:
             self.target_humidity_textentry.config(state="disabled")
             self.running_time_h_textentry.config(state="disabled")
             self.running_time_m_textentry.config(state="disabled")
-            self.delayed_start_textentry.config(state="disabled")
+            self.delayed_start_h_textentry.config(state="disabled")
+            self.delayed_start_m_textentry.config(state="disabled")
         else:
             self.start_button.config(state="normal")
             self.cancel_button.config(state="disabled")
@@ -281,7 +290,8 @@ class Gui:
             self.target_humidity_textentry.config(state="normal")
             self.running_time_h_textentry.config(state="normal")
             self.running_time_m_textentry.config(state="normal")
-            self.delayed_start_textentry.config(state="normal")
+            self.delayed_start_h_textentry.config(state="normal")
+            self.delayed_start_m_textentry.config(state="normal")
 
     def update_time_display(self) -> None:
         # Updates elapsed time display
@@ -306,14 +316,16 @@ class Gui:
         self.target_humidity_textentry.delete(0, tk.END)
         self.running_time_h_textentry.delete(0, tk.END)
         self.running_time_m_textentry.delete(0, tk.END)
-        self.delayed_start_textentry.delete(0, tk.END)
+        self.delayed_start_h_textentry.delete(0, tk.END)
+        self.delayed_start_m_textentry.delete(0, tk.END)
         
     def on_start_button_press(self) -> None:
         self.user_input.read(self.target_temperature_textentry.get(),
                         self.target_humidity_textentry.get(),
                         self.running_time_h_textentry.get(),
                         self.running_time_m_textentry.get(),
-                        self.delayed_start_textentry.get())
+                        self.delayed_start_h_textentry.get(),
+                        self.delayed_start_m_textentry.get())
         if self.user_input.is_correct:
             if self.user_input.startup_delay == 0:
                 self.start_up()
@@ -340,7 +352,8 @@ class Gui:
         self.target_humidity_textentry.config(state="normal")
         self.running_time_h_textentry.config(state="normal")
         self.running_time_m_textentry.config(state="normal")
-        self.delayed_start_textentry.config(state="normal")
+        self.delayed_start_h_textentry.config(state="normal")
+        self.delayed_start_m_textentry.config(state="normal")
         self.clear_text_entry_fields()
         self.relays.reset_all_channels()
         self.time_controller.reset()
@@ -373,7 +386,8 @@ class Gui:
             self.target_humidity_textentry,
             self.running_time_h_textentry,
             self.running_time_m_textentry,
-            self.delayed_start_textentry,
+            self.delayed_start_h_textentry,
+            self.delayed_start_m_textentry,
             self.start_button
         ]
         

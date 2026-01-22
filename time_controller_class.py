@@ -13,7 +13,7 @@ class TimeController:
         self.reset()
     
     def set_delayed_startup_time(self, delay) -> None:
-        self.delayed_startup_time = time() + delay * 3600
+        self.delayed_startup_time = time() + delay * 60 # Change to 3600 when done testing
         
     def clear_delayed_startup_time(self) -> None:
         self.delayed_startup_time = 0

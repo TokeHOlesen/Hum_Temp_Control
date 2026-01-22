@@ -10,12 +10,13 @@ class TimeController:
         self.temp_reached_timestamp = None
         self.timer_restarted = False
         self.delayed_startup_time = 0
-        self.delayed_startup_text = ""
         self.reset()
     
     def set_delayed_startup_time(self, delay) -> None:
-        self.delayed_startup_time = time() + delay * 3600 # Test only - change to 3600 when done
-        self.delayed_startup_text = datetime.fromtimestamp(self.delayed_startup_time).strftime("%d-%m-%Y %H:%M")
+        self.delayed_startup_time = time() + delay * 3600
+        
+    def clear_delayed_startup_time(self) -> None:
+        self.delayed_startup_time = 0
     
     def start_timer(self) -> None:
         self.start = time()
@@ -37,6 +38,10 @@ class TimeController:
         if time() >= self.delayed_startup_time:
             return True
         return False
+
+    @property
+    def delayed_startup_text(self) -> str:
+        return datetime.fromtimestamp(self.delayed_startup_time).strftime("%d-%m-%Y %H:%M")
             
     @property
     def seconds_remaining(self) -> int:

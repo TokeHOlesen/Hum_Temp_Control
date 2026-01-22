@@ -62,7 +62,7 @@ class Gui:
         tk.Label(self.target_entry_frame, text="m.", font=self.data_entry_font).grid(row=2, column=4, sticky="w", padx=(5, 0))
         
         # Time delay entry
-        tk.Label(self.target_entry_frame, text="Udsat opstart:", font=self.data_entry_font).grid(row=3, column=0, sticky="w")
+        tk.Label(self.target_entry_frame, text="Udsæt opstart:", font=self.data_entry_font).grid(row=3, column=0, sticky="w")
         self.delayed_start_textentry = tk.Entry(self.target_entry_frame, width=5, font=self.data_entry_font)
         self.delayed_start_textentry.grid(row=3, column=1, padx=(12, 0))
         self.delayed_start_textentry.bind("<Return>", lambda event: self.start_button.focus_set())
@@ -242,6 +242,7 @@ class Gui:
         self.varmer_label.config(text="ON", fg="Green") if self.relays.varmer_ch2.is_lit else self.varmer_label.config(text="OFF", fg="Red")
         self.affugter_label.config(text="ON", fg="Green") if self.relays.affugter_ch3.is_lit else self.affugter_label.config(text="OFF", fg="Red")
         self.damp_label.config(text="ON", fg="Green") if self.relays.damp_ch4.is_lit else self.damp_label.config(text="OFF", fg="Red")
+        
         if self.relays.error_ch6.is_lit and not self.relays.running_ch5.is_lit:
             self.status_label.config(text="Fejl.")
         elif self.relays.error_ch6.is_lit and self.relays.running_ch5.is_lit:
@@ -325,6 +326,7 @@ class Gui:
         self.malfunctions.reset()
         self.logger.emergency_line_logged = False
         self.time_controller.start_timer()
+        self.time_controller.clear_delayed_startup_time()
         self.target_temperature_textentry.focus_set()
         self.target_temperature_label.config(text=str(self.user_input.target_temp) + "°C")
         self.target_humidity_label.config(text=str(self.user_input.target_humidity) + "%")
@@ -371,6 +373,7 @@ class Gui:
             self.target_humidity_textentry,
             self.running_time_h_textentry,
             self.running_time_m_textentry,
+            self.delayed_start_textentry,
             self.start_button
         ]
         

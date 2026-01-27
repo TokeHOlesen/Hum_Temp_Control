@@ -101,7 +101,7 @@ class Malfunction_Watcher:
                 else:
                     self.malfunctions["Dehumidifier warmup"] = False
     
-    # After warmup, if the temperature falls too low, raises a malnfunction
+    # After warmup, if the temperature falls too low, raises a malfunction
     def catch_temperature_too_low_malfunction(self):
         if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
             if self.sensors.current_temp_dht + constants.TEMPERATURE_ERROR_THRESHOLD <= self.user_input.target_temp:
@@ -109,7 +109,7 @@ class Malfunction_Watcher:
             else:
                 self.malfunctions["Temp too low"] = False
     
-    # After warmup, if the temperature rises too high, raises a malnfunction
+    # After warmup, if the temperature rises too high, raises a malfunction
     def catch_temperature_too_high_malfunction(self):
         if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
             if self.sensors.current_temp_dht - constants.TEMPERATURE_ERROR_THRESHOLD >= self.user_input.target_temp:
@@ -117,7 +117,7 @@ class Malfunction_Watcher:
             else:
                 self.malfunctions["Temp too high"] = False
     
-    # After warmup, if the humidity falls too low, raises a malnfunction                
+    # After warmup, if the humidity falls too low, raises a malfunction                
     def catch_humidity_too_low_malfunction(self):
         if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
             if self.sensors.current_hum_dht + constants.HUMIDITY_ERROR_THRESHOLD <= self.user_input.target_humidity:
@@ -125,7 +125,7 @@ class Malfunction_Watcher:
             else:
                 self.malfunctions["Humidity too low"] = False
     
-    # After warmup, if the humidity rises too high, raises a malnfunction
+    # After warmup, if the humidity rises too high, raises a malfunction
     def catch_humidity_too_high_malfunction(self):
         if self.relays.running_ch5.is_lit and self.sensors.target_values_reached:
             if self.sensors.current_hum_dht - constants.HUMIDITY_ERROR_THRESHOLD >= self.user_input.target_humidity:

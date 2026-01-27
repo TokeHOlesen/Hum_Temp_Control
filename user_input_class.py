@@ -1,7 +1,7 @@
 import constants
 
 from dialog_window_functions import info_dialog
-from error_definitions import ValueOutsideRangeError, MinuteValueOutsideRangeError, HourValueOutsideRangeError, ValueMissingError
+from error_definitions import ValueOutsideRangeError, MinuteValueOutsideRangeError, ValueMissingError
 
 class UserInput:
     def __init__(self) -> None:
@@ -19,7 +19,8 @@ class UserInput:
              user_target_humidity,
              user_target_running_time_h,
              user_target_running_time_m,
-             user_startup_delay) -> None:
+             user_startup_delay_h,
+             user_startup_delay_m) -> None:
         # Sets the .is_correct flag to True. If any of the inputs are incorrect, it will be set to False
         self.is_correct = True
         
@@ -82,12 +83,24 @@ class UserInput:
                 info_dialog("Ugyldigt input", f"Den ønskede køretid skal bestå af to heltal\n(ingen bogstaver, mellerum eller decimaler).")
                 self.is_correct = False
         
-        if user_startup_delay == "":
+        if user_startup_delay_h == "" and user_startup_delay_m == "":
             self.startup_delay = 0
         else:
             try:
-                self.startup_delay = int(user_startup_delay)
-
+                time_h = 0 if user_startup_delay_h == "" else int(user_startup_delay_h)
+                time_m = 0 if user_startup_delay_m == "" else int(user_startup_delay_m)                
+                if time_m not in range(60):
+                    raise MinuteValueOutsideRangeError
+                
+                if time_h < 0:
+                    raise ValueError
+                
+                # Converts to seconds because the value will be compared to UNIX time
+                self.startup_delay = (time_h * 3600) + (time_m * 60)
+                
+            except MinuteValueOutsideRangeError:
+                info_dialog("Ugyldigt input", f"Værdien i minutfeltet skal være\nmellem 0 og 59.")
+                self.is_correct = False
             except ValueError:
-                info_dialog("Ugyldigt input", f"I feltet 'Udsat opstart' må der kun skrives heltal\n(ingen bogstaver, mellerum eller decimaler).")
+                info_dialog("Ugyldigt input", f"I feltet 'Udsæt opstartstid' må der kun tastes heltal\n(ingen bogstaver, mellerum eller decimaler).")
                 self.is_correct = False

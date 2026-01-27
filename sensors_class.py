@@ -84,9 +84,12 @@ class Sensors:
                 self.error_message = ""
             except IndexError as e:
                 # An index error will be raised when one or both of the temp probes can't be accessed.
-                self.ds18b20_error = True
+                # DISABLED - since the probes report an error very often and are not used to control the process,
+                # triggering a malfunction if they fail has been disabled.
+                # TO REENABLE, change the line below to True.
+                self.ds18b20_error = False
             except Exception as e:
-                # Since the DHT22 frequently raises read errors, which almost always are inconsequential, only reacts
+                # Since the DHT22 frequently raises read errors, which are almost always inconsequential, only reacts
                 # to the "Sensor not found" error
                 if str(e) == "DHT sensor not found, check wiring":
                     self.dht22_error = True
